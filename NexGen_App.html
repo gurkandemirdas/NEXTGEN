@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexGen — Üretim & Saha Takip Sistemi</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060810;--bg2:#09091a;--bg3:#0d0f22;--bg4:#12142a;--teal:#00e5c4;--t3:rgba(0,229,196,.1);--t4:rgba(0,229,196,.04);--amber:#f59e0b;--red:#ef4444;--green:#22c55e;--blue:#3b82f6;--purple:#a78bfa;--c1:#edf0ff;--c2:#8892a4;--c3:#556070;--c4:#2d3848;--br:rgba(0,229,196,.15);--br2:rgba(0,229,196,.07);}
+body{background:var(--bg);color:var(--c1);font-family:'Space Grotesk',sans-serif;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:rgba(0,229,196,.2);border-radius:2px}
+.top{height:48px;background:linear-gradient(90deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0}
+.logo{display:flex;align-items:center;gap:8px;cursor:pointer}
+.lm{width:26px;height:26px;background:linear-gradient(135deg,var(--teal),#009e8a);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:10px;color:var(--bg)}
+.lt{font-size:13px;font-weight:700}.lv{font-size:8px;color:var(--teal);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px}
+.tr{display:flex;align-items:center;gap:8px;margin-left:auto}
+.lpill{display:flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--br2);border-radius:5px;padding:3px 8px;font-size:9px;color:var(--c2);font-family:'JetBrains Mono',monospace}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:ld 2s infinite}
+@keyframes ld{0%,100%{box-shadow:0 0 2px var(--green)}50%{box-shadow:0 0 8px var(--green)}}
+.wrap{display:flex;flex:1;overflow:hidden}
+.side{width:186px;min-width:186px;background:var(--bg2);border-right:1px solid var(--br2);overflow-y:auto;flex-shrink:0;padding:4px 0}
+.main{flex:1;overflow-y:auto;background:var(--bg)}
+.pg{display:none;padding:14px;animation:fi .2s ease}.pg.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px}
+.pt{font-size:17px;font-weight:700}.ps{font-size:10px;color:var(--c3);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.bc{font-size:9px;color:var(--c4);font-family:'JetBrains Mono',monospace;margin-bottom:3px}.bc em{color:var(--teal);font-style:normal}
+.nl{font-size:8px;font-weight:700;color:var(--c4);text-transform:uppercase;letter-spacing:2px;padding:8px 11px 3px;font-family:'JetBrains Mono',monospace}
+.ni{display:flex;align-items:center;gap:7px;padding:7px 11px;cursor:pointer;font-size:11.5px;color:var(--c3);transition:all .12s;border-left:2px solid transparent;user-select:none}
+.ni:hover{color:var(--c2);background:var(--t4)}.ni.on{color:var(--teal);background:var(--t3);border-left-color:var(--teal);font-weight:500}
+.ni-i{font-size:12px;width:14px;text-align:center;flex-shrink:0}
+.nb{margin-left:auto;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.nbr{background:rgba(239,68,68,.15);color:var(--red)}.nba{background:rgba(245,158,11,.15);color:var(--amber)}
+.ndv{height:1px;background:var(--br2);margin:3px 0}
+.card{background:var(--bg3);border:1px solid var(--br2);border-radius:9px;padding:13px;margin-bottom:11px;transition:border-color .2s}.card:hover{border-color:var(--br)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ct{font-size:12px;font-weight:600;color:var(--c1);display:flex;align-items:center;gap:5px}
+.ci{width:19px;height:19px;border-radius:4px;background:var(--t3);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.sc{background:var(--bg4);border:1px solid var(--br2);border-radius:8px;padding:11px;position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc.t::before{background:var(--teal)}.sc.a::before{background:var(--amber)}.sc.r::before{background:var(--red)}.sc.g::before{background:var(--green)}.sc.b::before{background:var(--blue)}
+.sl{font-size:9px;color:var(--c3);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace}
+.sv{font-size:22px;font-weight:700;font-family:'JetBrains Mono',monospace;margin:3px 0}
+.sn{font-size:9px}.sn.up{color:var(--green)}.sn.dn{color:var(--red)}.sn.wn{color:var(--amber)}
+.tw{overflow-x:auto;border-radius:7px;border:1px solid var(--br2)}.tsh{max-height:240px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead{background:var(--bg4);position:sticky;top:0;z-index:1}
+th{padding:7px 9px;text-align:left;font-size:8px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:1px;font-family:'JetBrains Mono',monospace;white-space:nowrap;border-bottom:1px solid var(--br2)}
+td{padding:7px 9px;border-top:1px solid var(--br2);color:var(--c1);vertical-align:middle}
+tr:hover td{background:rgba(0,229,196,.02)}.trr td{background:rgba(239,68,68,.04)!important}.trg td{background:rgba(34,197,94,.03)!important}
+.b{display:inline-flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+.bgreen{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.18)}
+.bred{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.18)}
+.bamber{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.18)}
+.bblue{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.18)}
+.bteal{background:var(--t3);color:var(--teal);border:1px solid var(--br)}
+.bgray{background:rgba(100,116,139,.08);color:var(--c2);border:1px solid rgba(100,116,139,.12)}
+.bpurple{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.18)}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:6px;font-size:11.5px;font-weight:500;cursor:pointer;border:none;transition:all .14s;font-family:'Space Grotesk',sans-serif;white-space:nowrap}
+.btp{background:var(--teal);color:var(--bg)}.btp:hover{background:#00c9ab;transform:translateY(-1px)}
+.bts{background:transparent;color:var(--teal);border:1px solid var(--br)}.bts:hover{background:var(--t3)}
+.btd{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.btg{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2)}
+.sm{padding:3px 8px;font-size:10px}.bgr{display:flex;gap:5px;flex-wrap:wrap}
+.fg{margin-bottom:10px}
+.fl{display:block;font-size:8.5px;font-weight:700;color:var(--c2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.7px;font-family:'JetBrains Mono',monospace}
+.fc{width:100%;background:var(--bg4);border:1px solid var(--br);border-radius:6px;padding:6px 9px;color:var(--c1);font-size:11.5px;font-family:'Space Grotesk',sans-serif;outline:none}
+.fc:focus{border-color:var(--teal)}.fc::placeholder{color:var(--c4)}
+select.fc option{background:var(--bg4)}.fcr{background:var(--bg2);color:var(--teal)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px}.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.al{padding:8px 11px;border-radius:6px;font-size:10.5px;display:flex;align-items:flex-start;gap:7px;margin-bottom:11px;line-height:1.4}
+.alw{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.22);color:#fde68a}
+.ali{background:rgba(59,130,246,.06);border:1px solid rgba(59,130,246,.22);color:#bfdbfe}
+.ald{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.22);color:#fecaca}
+.als{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.22);color:#bbf7d0}
+.pb{height:2.5px;background:var(--bg4);border-radius:2px;overflow:hidden}
+.pf{height:100%;border-radius:2px}.pft{background:var(--teal)}.pfa{background:var(--amber)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--br2);margin-bottom:12px}
+.tab{padding:6px 11px;font-size:11px;color:var(--c3);cursor:pointer;border-bottom:2px solid transparent;transition:all .13s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Space Grotesk',sans-serif}
+.tab:hover{color:var(--c2)}.tab.on{color:var(--teal);border-bottom-color:var(--teal);font-weight:500}
+.tc{color:var(--teal)}.ta{color:var(--amber)}.tg{color:var(--green)}.ts{color:var(--c3)}.mono{font-family:'JetBrains Mono',monospace}
+.mt1{margin-top:6px}.mt2{margin-top:11px}.mb1{margin-bottom:6px}.mb2{margin-bottom:11px}
+.dv{height:1px;background:var(--br2);margin:10px 0}
+.dr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--br2);font-size:11px}
+.dr:last-child{border-bottom:none}.dk{color:var(--c2)}.dv2{font-family:'JetBrains Mono',monospace;color:var(--c1)}
+.stps{display:flex;overflow-x:auto;padding:2px 0 8px;gap:0}
+.si{display:flex;flex-direction:column;align-items:center;min-width:64px;position:relative}
+.si:not(:last-child)::after{content:'';position:absolute;top:12px;left:calc(50% + 12px);right:calc(-50% + 12px);height:1px;background:var(--br2)}
+.si.dn::after{background:var(--teal)!important}
+.sd{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--br2);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;z-index:1;color:var(--c3);position:relative;font-family:'JetBrains Mono',monospace}
+.sd.dn{background:var(--teal);border-color:var(--teal);color:var(--bg)}.sd.ac{border-color:var(--teal);color:var(--teal);box-shadow:0 0 8px rgba(0,229,196,.35)}
+.slbl{font-size:8px;color:var(--c3);margin-top:3px;text-align:center;font-family:'JetBrains Mono',monospace;line-height:1.2;max-width:60px}.slbl.ac{color:var(--teal)}
+.nc{position:fixed;top:55px;right:12px;z-index:500;display:flex;flex-direction:column;gap:5px;pointer-events:none;max-width:275px}
+.ni2{background:var(--bg2);border:1px solid var(--br);border-radius:7px;padding:9px 12px;font-size:10.5px;color:var(--c1);display:flex;gap:7px;align-items:flex-start;pointer-events:all;animation:nsl .24s ease;box-shadow:0 6px 24px rgba(0,0,0,.65)}
+@keyframes nsl{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.nis .nic{color:var(--green)}.niw .nic{color:var(--amber)}.nie .nic{color:var(--red)}
+.nic{font-size:12px;margin-top:1px;flex-shrink:0}.nit{font-weight:600;font-size:10.5px;margin-bottom:1px}.nim{color:var(--c2);font-size:9.5px;line-height:1.3}
+.wbox{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:5px;padding:6px 9px;font-size:9.5px;color:#fca5a5;display:none;margin-top:4px}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center}.mo.on{display:flex}
+.mdl{background:var(--bg2);border:1px solid var(--br);border-radius:11px;width:min(680px,96vw);max-height:90vh;overflow-y:auto;animation:mi .18s ease}
+@keyframes mi{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.mh{padding:13px 15px 10px;border-bottom:1px solid var(--br2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:2}.mb{padding:15px}
+.mc{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid var(--br);color:var(--c2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;transition:all .13s}.mc:hover{background:var(--t3);color:var(--teal)}
+@media(max-width:768px){.side{display:none}.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.fr,.fr3{grid-template-columns:1fr}}
+
+.trr td{background:rgba(239,68,68,.04)!important}
+.trg td{background:rgba(34,197,94,.03)!important}
+.nis .nic{color:var(--green)}
+.niw .nic{color:var(--amber)}
+.nie .nic{color:var(--red)}
+
+/* ── AI RAPOR ───────────────────────────────────────── */
+.ai-input-wrap{position:relative;margin-bottom:12px}
+.ai-textarea{width:100%;background:var(--bg4);border:1.5px solid var(--br);border-radius:10px;
+  padding:13px 14px 40px;color:var(--c1);font-size:13.5px;font-family:'Space Grotesk',sans-serif;
+  outline:none;resize:none;min-height:100px;line-height:1.6;caret-color:var(--teal);
+  transition:border-color .2s}
+.ai-textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,229,196,.08)}
+.ai-textarea::placeholder{color:var(--c4)}
+.ai-send-btn{position:absolute;right:10px;bottom:10px;width:34px;height:34px;
+  border-radius:8px;background:var(--teal);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+  color:var(--bg);transition:all .15s;flex-shrink:0}
+.ai-send-btn:hover{background:#00c9ab;transform:scale(1.05)}
+.ai-send-btn:active{transform:scale(.93)}
+.ai-send-btn:disabled{background:var(--bg4);color:var(--c4);cursor:not-allowed;transform:none}
+.ai-chip-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.ai-chip{padding:6px 13px;border-radius:20px;font-size:10.5px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--br2);background:var(--bg4);color:var(--c3);
+  white-space:nowrap;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.ai-chip:hover{border-color:var(--teal);color:var(--teal);background:rgba(0,229,196,.06)}
+.ai-chip:active{transform:scale(.96)}
+.ai-history{display:flex;flex-direction:column;gap:14px;margin-bottom:14px}
+.ai-msg{display:flex;gap:10px;animation:fi .22s ease}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-bubble{padding:12px 15px;border-radius:12px;font-size:12.5px;line-height:1.6;
+  max-width:88%;word-break:break-word}
+.ai-msg.user .ai-bubble{background:rgba(0,229,196,.12);border:1px solid rgba(0,229,196,.2);
+  color:var(--c1);border-radius:12px 3px 12px 12px}
+.ai-msg.ai .ai-bubble{background:var(--bg3);border:1px solid var(--br2);
+  color:var(--c1);border-radius:3px 12px 12px 12px}
+.ai-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  background:var(--bg4);border:1px solid var(--br2)}
+.ai-msg.ai .ai-avatar{background:rgba(0,229,196,.12);border-color:var(--teal)}
+.ai-thinking{display:flex;gap:5px;align-items:center;padding:12px 15px;
+  background:var(--bg3);border:1px solid var(--br2);border-radius:3px 12px 12px 12px;
+  max-width:80px}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);
+  animation:ai-bounce .9s infinite ease-in-out}
+.ai-dot:nth-child(2){animation-delay:.18s}
+.ai-dot:nth-child(3){animation-delay:.36s}
+@keyframes ai-bounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.ai-report-card{background:var(--bg3);border:1px solid var(--br);border-radius:12px;
+  overflow:hidden;margin-top:10px}
+.ai-report-head{background:linear-gradient(135deg,rgba(0,229,196,.08),rgba(0,229,196,.02));
+  padding:14px 16px;border-bottom:1px solid var(--br2);
+  display:flex;align-items:center;justify-content:space-between}
+.ai-report-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.ai-report-body{padding:14px 16px}
+.ai-table{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:8px}
+.ai-table th{padding:8px 10px;text-align:left;font-size:8.5px;font-weight:700;
+  color:var(--c3);text-transform:uppercase;letter-spacing:.8px;
+  font-family:'JetBrains Mono',monospace;border-bottom:1px solid var(--br2)}
+.ai-table td{padding:9px 10px;border-top:1px solid var(--br2);color:var(--c1);
+  vertical-align:middle}
+.ai-table tr:hover td{background:rgba(0,229,196,.02)}
+.ai-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0}
+.ai-stat{background:var(--bg4);border-radius:9px;padding:11px;text-align:center;
+  border:1px solid var(--br2)}
+.ai-stat-v{font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;margin-bottom:3px}
+.ai-stat-l{font-size:8.5px;color:var(--c3);text-transform:uppercase;letter-spacing:.8px;
+  font-family:'JetBrains Mono',monospace}
+.pdf-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
+  border-radius:8px;background:rgba(0,229,196,.1);border:1px solid var(--br);
+  color:var(--teal);font-size:11px;font-weight:600;cursor:pointer;
+  transition:all .15s;font-family:'JetBrains Mono',monospace}
+.pdf-btn:hover{background:rgba(0,229,196,.18)}
+.pdf-btn:active{transform:scale(.96)}
+.ai-source{font-size:9.5px;color:var(--c3);font-family:'JetBrains Mono',monospace;
+  margin-top:8px;display:flex;align-items:center;gap:5px}
+
+
+/* ── SES / MİKROFON ─────────────────────────────────── */
+.ai-mic-btn{
+  position:absolute;right:52px;bottom:10px;width:34px;height:34px;
+  border-radius:8px;background:var(--bg3);border:1.5px solid var(--br2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:16px;transition:all .18s;flex-shrink:0;color:var(--c2)
+}
+.ai-mic-btn:hover{border-color:var(--br);color:var(--c1)}
+.ai-mic-btn:active{transform:scale(.92)}
+.ai-mic-btn.listening{
+  background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.5);
+  color:var(--red);animation:mic-pulse 1.2s infinite
+}
+.ai-mic-btn.listening .mic-icon::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid var(--red);animation:mic-ring 1.2s infinite;opacity:0
+}
+@keyframes mic-pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.3)}
+  50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}
+}
+@keyframes mic-ring{
+  0%{transform:scale(.8);opacity:.6}
+  100%{transform:scale(1.5);opacity:0}
+}
+.voice-status{
+  display:none;align-items:center;gap:8px;padding:9px 12px;
+  background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);
+  border-radius:8px;margin-bottom:10px;font-size:11px;color:var(--red)
+}
+.voice-status.on{display:flex}
+.voice-status .vs-waves{display:flex;align-items:center;gap:3px;margin-left:auto}
+.vs-bar{width:3px;border-radius:2px;background:var(--red);animation:vs-wave 1s infinite ease-in-out}
+.vs-bar:nth-child(1){height:8px;animation-delay:0s}
+.vs-bar:nth-child(2){height:14px;animation-delay:.1s}
+.vs-bar:nth-child(3){height:10px;animation-delay:.2s}
+.vs-bar:nth-child(4){height:16px;animation-delay:.3s}
+.vs-bar:nth-child(5){height:8px;animation-delay:.4s}
+@keyframes vs-wave{0%,100%{transform:scaleY(.4);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+.voice-transcript{
+  display:none;padding:8px 12px;background:rgba(0,229,196,.05);
+  border:1px solid var(--br2);border-radius:8px;margin-bottom:8px;
+  font-size:11.5px;color:var(--c2);font-style:italic;line-height:1.5
+}
+.voice-transcript.on{display:block}
+.mic-icon{position:relative;display:flex;align-items:center;justify-content:center}
+.no-speech-support{
+  display:none;padding:8px 12px;background:rgba(245,158,11,.07);
+  border:1px solid rgba(245,158,11,.2);border-radius:8px;margin-bottom:8px;
+  font-size:11px;color:var(--amber)
+}
+
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo" onclick="gp('dash')"><div class="lm" style="background:linear-gradient(135deg,#00e5c4,#009e8a)"><svg viewBox="0 0 40 40" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="20,2 34,9 34,31 20,38 6,31 6,9" fill="none" stroke="currentColor" stroke-width="1.8"/>
+  <polyline points="10,30 10,11 30,30 30,11" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></div><div><div class="lt">NexGen</div><div class="lv">ÜRETİM & SAHA</div></div></div>
+  <div class="tr">
+    <div class="lpill"><div class="dot"></div><span id="clk">--:--:--</span>&nbsp;8/8</div>
+    <button class="btn bts sm" onclick="gp('alarmlar')">&#128276; <span style="color:var(--red)">2</span></button>
+    <button class="btn btp sm" onclick="gp('yeni-wo')">+ Is Emri</button>
+  </div>
+</div>
+<div class="wrap">
+<div class="side">
+  <div class="nl">Genel</div><div class="ni on" onclick="gp('dash')"><span class="ni-i">&#9642;</span>Gosterge Paneli</div>
+  <div class="ndv"></div><div class="nl">Izleme</div>
+  <div class="ni" onclick="gp('sensors')"><span class="ni-i">&#8767;</span>Sicaklik &amp; Nem<span class="nb nbr">1</span></div>
+  <div class="ni" onclick="gp('kurutma')"><span class="ni-i">&#9649;</span>Kurutma Kabini<span class="nb nba">3</span></div>
+  <div class="ndv"></div><div class="nl">Uretim</div>
+  <div class="ni" onclick="gp('konfig')"><span class="ni-i">&#128203;</span>Elektronik Konfig.</div>
+  <div class="ni" onclick="gp('isemri')"><span class="ni-i">&#128196;</span>Is Emri<span class="nb nba">12</span></div>
+  <div class="ni" onclick="gp('yeni-wo')"><span class="ni-i">&#10010;</span>Yeni Is Emri</div>
+  <div class="ni" onclick="gp('ie-ekrani')"><span class="ni-i">&#128187;</span>Is Emri Ekrani</div>
+  <div class="ni" onclick="gp('ic-imalat')"><span class="ni-i">&#127981;</span>Ic Imalat</div>
+  <div class="ni" onclick="gp('smt')"><span class="ni-i">&#129302;</span>SMT Proses</div>
+  <div class="ni" onclick="gp('bolgesel')"><span class="ni-i">&#128297;</span>Bolgesel Lehim</div>
+  <div class="ni" onclick="gp('manuel')"><span class="ni-i">&#128295;</span>Manuel Lehim</div>
+  <div class="ni" onclick="gp('xray')"><span class="ni-i">&#128302;</span>X-Ray</div>
+  <div class="ni" onclick="gp('kaplama')"><span class="ni-i">&#127912;</span>Yikama &amp; Kaplama</div>
+  <div class="ni" onclick="gp('yaslandirma')"><span class="ni-i">&#127777;</span>Yaslandirma</div>
+  <div class="ni" onclick="gp('depanelleme')"><span class="ni-i">&#9988;</span>Depanelleme</div>
+  <div class="ni" onclick="gp('test')"><span class="ni-i">&#9889;</span>Elektriksel Test</div>
+  <div class="ni" onclick="gp('kalite')"><span class="ni-i">&#10003;</span>Kalite Kontrol</div>
+  <div class="ndv"></div><div class="nl">Raporlama</div>
+  <div class="ni" onclick="gp('kpi')"><span class="ni-i">&#128202;</span>KPI Analiz</div>
+  <div class="ni" onclick="gp('planlama')"><span class="ni-i">&#128197;</span>Planlama &amp; Gantt</div>
+  <div class="ni" onclick="gp('alarmlar')"><span class="ni-i">&#128276;</span>Alarmlar<span class="nb nbr">2</span></div>
+  <div class="ndv"></div><div class="nl">Sistem</div>
+  <div class="ni" onclick="gp('makine')"><span class="ni-i">&#9881;</span>Makine Kayitlari</div>
+  <div class="ni" onclick="gp('raporlar')"><span class="ni-i">&#128209;</span>Raporlar</div>
+  <div class="ni" onclick="gp('ai-rapor')"><span class="ni-i">&#129302;</span>AI Rapor<span class="nb nba">YENİ</span></div>
+  <div class="ni" onclick="gp('kullanicilar')"><span class="ni-i">&#128100;</span>Kullanicilar</div>
+  <div class="ni" onclick="gp('ayarlar')"><span class="ni-i">&#128299;</span>Ayarlar</div>
+</div>
+<div class="main">
+<div class="pg on" id="page-dash"><div id="dash-c"></div></div>
+<div class="pg" id="page-sensors"><div id="sensors-c"></div></div>
+<div class="pg" id="page-kurutma"><div id="kurutma-c"></div></div>
+<div class="pg" id="page-konfig"><div id="konfig-c"></div></div>
+<div class="pg" id="page-isemri"><div id="isemri-c"></div></div>
+<div class="pg" id="page-yeni-wo"><div id="yeniwo-c"></div></div>
+<div class="pg" id="page-ie-ekrani"><div id="ieekrani-c"></div></div>
+<div class="pg" id="page-ic-imalat"><div id="icimalat-c"></div></div>
+<div class="pg" id="page-smt"><div id="smt-c"></div></div>
+<div class="pg" id="page-bolgesel"><div id="bolgesel-c"></div></div>
+<div class="pg" id="page-manuel"><div id="manuel-c"></div></div>
+<div class="pg" id="page-xray"><div id="xray-c"></div></div>
+<div class="pg" id="page-kaplama"><div id="kaplama-c"></div></div>
+<div class="pg" id="page-yaslandirma"><div id="yaslandirma-c"></div></div>
+<div class="pg" id="page-depanelleme"><div id="depanelleme-c"></div></div>
+<div class="pg" id="page-test"><div id="test-c"></div></div>
+<div class="pg" id="page-kalite"><div id="kalite-c"></div></div>
+<div class="pg" id="page-kpi"><div id="kpi-c"></div></div>
+<div class="pg" id="page-planlama"><div id="planlama-c"></div></div>
+<div class="pg" id="page-alarmlar"><div id="alarmlar-c"></div></div>
+<div class="pg" id="page-makine"><div id="makine-c"></div></div>
+<div class="pg" id="page-raporlar"><div id="raporlar-c"></div></div>
+<div class="pg" id="page-ai-rapor"><div id="airapor-c"></div></div>
+<div class="pg" id="page-kullanicilar"><div id="kullanicilar-c"></div></div>
+<div class="pg" id="page-ayarlar"><div id="ayarlar-c"></div></div>
+</div>
+</div>
+<div class="mo" id="kM">
+  <div class="mdl"><div class="mh"><span style="font-size:13px;font-weight:700">Dolaba Malzeme Yerlestir</span><button class="mc" onclick="closeM('kM')">X</button></div>
+  <div class="mb"><div class="fr"><div class="fg"><label class="fl">Malzeme Kodu (ART)</label><input class="fc" id="k-k" placeholder="ART..."></div><div class="fg"><label class="fl">Tanim</label><input class="fc" id="k-t"></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Lot No</label><input class="fc" id="k-l" placeholder="L2025-..."></div><div class="fg"><label class="fl">MSL</label><select class="fc" id="k-m"><option>1</option><option>2</option><option selected>2a</option><option>3</option><option>4</option><option>5</option><option>5a</option><option>6</option></select></div></div>
+  <button class="btn btp sm" onclick="addKab();closeM('kM')">Dolaba Yerlestir</button>
+  </div></div>
+</div>
+<div class="mo" id="uM">
+  <div class="mdl"><div class="mh"><span style="font-size:13px;font-weight:700">Yeni Kullanici Ekle</span><button class="mc" onclick="closeM('uM')">X</button></div>
+  <div class="mb"><div class="fr"><div class="fg"><label class="fl">Ad Soyad</label><input class="fc" id="u-a"></div><div class="fg"><label class="fl">Kullanici Adi</label><input class="fc" id="u-u"></div></div>
+  <div class="fr"><div class="fg"><label class="fl">Rol</label><select class="fc"><option>Operator</option><option>Kalite Sorumlusu</option><option>Uretim Yoneticisi</option><option>Yonetici</option></select></div><div class="fg"><label class="fl">Bolum</label><select class="fc"><option>Elektronik Dizgi</option><option>Kalite</option><option>Planlama</option><option>Depo</option></select></div></div>
+  <button class="btn btp sm" onclick="addUsr();closeM('uM')">Ekle</button>
+  </div></div>
+</div>
+<div class="nc" id="nc"></div>
+<script>
+
+const SN={};
+const sensors=[
+  {id:1,name:'Elekt. Dizgi B1',temp:28.4,hum:42.1,prob:27.8,maxT:26,minT:18,maxH:55,minH:30,crit:true,resp:['Mehmet Y.','Ayse K.'],mac:'00:1A:2B:3C:4D:5E'},
+  {id:2,name:'Dizgi Klima',temp:22.1,hum:38.5,prob:null,maxT:25,minT:18,maxH:55,minH:30,crit:false,resp:['Mehmet Y.','Ali R.'],mac:'00:1A:2B:3C:4D:5F'},
+  {id:3,name:'Kurutma Dolabi 1',temp:24.1,hum:8.2,prob:23.9,maxT:26,minT:22,maxH:10,minH:5,crit:false,resp:['Fatma T.','Mehmet Y.'],mac:'00:1A:2B:3C:4D:60'},
+  {id:4,name:'Kurutma Dolabi 2',temp:25.0,hum:7.8,prob:24.5,maxT:26,minT:22,maxH:10,minH:5,crit:false,resp:['Fatma T.','Ali R.'],mac:'00:1A:2B:3C:4D:61'},
+  {id:5,name:'Elekt. Montaj',temp:23.5,hum:44.2,prob:null,maxT:27,minT:18,maxH:60,minH:25,crit:false,resp:['Hasan B.','Ali R.'],mac:'00:1A:2B:3C:4D:62'},
+  {id:6,name:'Depo A',temp:20.3,hum:52.4,prob:null,maxT:28,minT:15,maxH:65,minH:20,crit:false,resp:['Depo Sor.','Ali R.'],mac:'00:1A:2B:3C:4D:63'},
+  {id:7,name:'Depo B',temp:19.8,hum:50.1,prob:null,maxT:28,minT:15,maxH:65,minH:20,crit:false,resp:['Depo Sor.','Fatma T.'],mac:'00:1A:2B:3C:4D:64'},
+  {id:8,name:'Test Odasi',temp:21.6,hum:45.0,prob:21.0,maxT:25,minT:18,maxH:55,minH:30,crit:false,resp:['Test Muh.','Ayse K.'],mac:'00:1A:2B:3C:4D:65'},
+];
+let kabItems=[
+  {kod:'ART0023455',tanim:'BGA IC 256-pin',lot:'L2024-0312',msl:'3',sure:14},
+  {kod:'ART0019872',tanim:'SMD Kond. 100nF',lot:'L2024-0298',msl:'2a',sure:6},
+  {kod:'ART0031204',tanim:'MOSFET TO-252',lot:'L2025-0045',msl:'4',sure:2},
+];
+const wos=[
+  {isf:'7847-21582601',proj:'GEZKIY',pn:'940.01.ET.00.KT.230001.AA',adet:20,mal:'Tamam',start:'10.01',plan:'17.01',durum:'Devam',pct:72},
+  {isf:'7848-21582602',proj:'T PROJESI',pn:'940.01.ET.00.KT.230045.AB',adet:5,mal:'Eksik',start:'24.01',plan:'30.01',durum:'Bekliyor',pct:15},
+  {isf:'7849-21582603',proj:'Q PROJESI',pn:'940.02.ET.01.KT.230012.AA',adet:50,mal:'Tamam',start:'06.02',plan:'18.02',durum:'Devam',pct:45},
+  {isf:'7850-21582604',proj:'P PROJESI',pn:'940.03.ET.00.KT.230088.AA',adet:60,mal:'Tamam',start:'18.02',plan:'25.02',durum:'Tamamlandi',pct:100},
+  {isf:'7851-21582605',proj:'R PROJESI',pn:'940.04.ET.02.KT.230101.AB',adet:2,mal:'Bekliyor',start:'24.02',plan:'28.02',durum:'Bekliyor',pct:0},
+];
+const bomItems=[
+  {pid:'GEZKIY',kod:'ART0023455',ad:'BGA IC 256-pin',ihtyc:20,stok:32,ack:'',sip:'',msl:'3'},
+  {pid:'GEZKIY',kod:'ART0019872',ad:'SMD Kond. 100nF',ihtyc:460,stok:1200,ack:'',sip:'',msl:'1'},
+  {pid:'GEZKIY',kod:'ART0031204',ad:'MOSFET TO-252',ihtyc:80,stok:45,ack:'Siparis Verildi',sip:'PO-2025-0312',msl:'2a'},
+  {pid:'GEZKIY',kod:'ART0044123',ad:'Direnc 10K 0402',ihtyc:980,stok:0,ack:'Dizilmeyecek',sip:'',msl:'1'},
+  {pid:'GEZKIY',kod:'ART0052001',ad:'LED Kirmizi 0603',ihtyc:40,stok:40,ack:'',sip:'',msl:'2'},
+];
+const kpiRows=[
+  {ay:'OCAK',proj:'X PRJ',plan:8,gercek:9,komp:280,rework:19,adet:5,ret:0},
+  {ay:'OCAK',proj:'T PRJ',plan:7,gercek:14,komp:361,rework:40,adet:25,ret:0},
+  {ay:'SUBAT',proj:'Q PRJ',plan:11,gercek:13,komp:974,rework:10,adet:50,ret:0},
+  {ay:'SUBAT',proj:'P PRJ',plan:8,gercek:7,komp:967,rework:22,adet:60,ret:1},
+];
+const kalRows=[
+  {tarih:'14.04 09:00',isf:'7847-21582601',proj:'GEZKIY',hata:'Solder Bridge',tespit:'AOI',adet:3,aksiyon:'Rework',sor:'Ayse K.',durum:'Tamamlandi'},
+  {tarih:'13.04 15:30',isf:'7849-21582603',proj:'Q PROJESI',hata:'Missing Comp.',tespit:'Kalite',adet:1,aksiyon:'Rework',sor:'Ayse K.',durum:'Devam'},
+  {tarih:'12.04 11:00',isf:'7847-21582601',proj:'GEZKIY',hata:'BGA Void',tespit:'X-Ray',adet:2,aksiyon:'Scrap',sor:'Test Muh.',durum:'Tamamlandi'},
+];
+const ganttData=[
+  {lbl:'GEZKIY',start:0,dur:40,col:'var(--teal)'},
+  {lbl:'T PROJESI',start:14,dur:24,col:'var(--amber)'},
+  {lbl:'Q PROJESI',start:18,dur:46,col:'var(--amber)'},
+  {lbl:'P PROJESI',start:32,dur:32,col:'var(--teal)'},
+  {lbl:'Bakim',start:16,dur:2,col:'rgba(239,68,68,.5)'},
+];
+let users=[
+  {ad:'Mehmet Yilmaz',usr:'mehmet.y',rol:'Uretim Yoneticisi',bolum:'Elektronik Dizgi',email:'mehmet.y@altinay.com',giris:'14.04 08:55',aktif:true},
+  {ad:'Ayse Kaya',usr:'ayse.k',rol:'Kalite Sorumlusu',bolum:'Kalite',email:'ayse.k@altinay.com',giris:'14.04 09:10',aktif:true},
+  {ad:'Fatma Turk',usr:'fatma.t',rol:'Operator',bolum:'Elektronik Dizgi',email:'fatma.t@altinay.com',giris:'14.04 08:30',aktif:true},
+  {ad:'Ali Riza Demir',usr:'ali.r',rol:'Operator',bolum:'Depo',email:'ali.r@altinay.com',giris:'13.04 17:00',aktif:false},
+];
+const ops=['KREM LEHIM','3D INCEL.','DIZGI','FIRIN','AOI','BOLG.LEHIM','M.LEHIM','YIKAMA','KAPLAMA','X-RAY','YASLAND.','DEPAN.','TEST','SON KONT.'];
+let nozzleList=[{sicaklik:260},{sicaklik:255}];
+let manuelRows=[],xrRows=[],depRows=[],testRows=[],tPass=0,tFail=0;
+let tCht=null,sChtInst=null,kpiCht=null,kalCht=null,agSecs=167538,agInt=null;
+
+// CLOCK
+setInterval(()=>{const n=new Date();const e=document.getElementById('clk');if(e)e.textContent=`${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`},1000);
+
+// NAV
+function gp(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  const el=document.getElementById('page-'+id);if(el)el.classList.add('on');
+  document.querySelectorAll('.ni').forEach(n=>{if((n.getAttribute('onclick')||'').includes("'"+id+"'"))n.classList.add('on')});
+  if(!SN[id]){SN[id]=true;render(id)}
+}
+function openM(id){document.getElementById(id).classList.add('on')}
+function closeM(id){document.getElementById(id).classList.remove('on')}
+function swTab(el){el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on')}
+
+// NOTIFY
+function sn(t,title,msg,dur){
+  dur=dur||3200;
+  const icons={s:'&#10003;',i:'i',w:'!',e:'X'};
+  const c=document.getElementById('nc');
+  const el=document.createElement('div');el.className='ni2 ni'+t;
+  el.innerHTML='<div class="nic">'+(icons[t]||'*')+'</div><div><div class="nit">'+title+'</div><div class="nim">'+msg+'</div></div>';
+  c.appendChild(el);
+  setTimeout(function(){el.style.opacity='0';el.style.transform='translateX(12px)';el.style.transition='all .2s';setTimeout(function(){el.remove()},220)},dur);
+}
+
+// HELPERS
+function sb(s){
+  const m={'Devam':'bteal','Bekliyor':'bamber','Tamamlandi':'bgreen','Durdur':'bred'};
+  return '<span class="b '+(m[s]||'bgray')+'">'+s+'</span>';
+}
+function mslB(m){
+  const mc={'1':'bgreen','2':'bblue','2a':'bblue','3':'bamber','4':'bamber','5':'bred','5a':'bred','6':'bred'};
+  return '<span class="b '+(mc[m]||'bgray')+'">'+m+'</span>';
+}
+function bar(pct){
+  return '<div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:2.5px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:var(--teal);border-radius:2px"></div></div><span class="mono" style="font-size:9px">'+pct+'%</span></div>';
+}
+function ortakHtml(p){
+  return '<div class="ct mb1"><div class="ci">o</div>Ortak Panel Bilgileri</div>'+
+    '<div class="fr"><div class="fg"><label class="fl">PCB Uzunluk (mm)</label><input type="number" class="fc" value="120"></div>'+
+    '<div class="fg"><label class="fl">PCB Genislik (mm)</label><input type="number" class="fc" value="80"></div></div>'+
+    '<div class="fg"><label class="fl">Panel Adedi (Satir x Sutun)</label>'+
+    '<div style="display:flex;align-items:center;gap:7px">'+
+    '<input type="number" class="fc" id="'+p+'r" value="2" style="width:55px" oninput="calcP(\''+p+'\')">'+
+    '<span class="tc" style="font-weight:700">x</span>'+
+    '<input type="number" class="fc" id="'+p+'c" value="3" style="width:55px" oninput="calcP(\''+p+'\')">'+
+    '<span class="ts">=</span><span class="mono tc" style="font-weight:700;font-size:14px" id="'+p+'t">6</span></div></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Komp. Cesit Sayisi</label><div class="fc fcr">48 cesit</div></div>'+
+    '<div class="fg"><label class="fl">Toplam Komp.</label><div class="fc fcr">2,304 adet</div></div></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">TOP Yuzey</label><input type="file" class="fc" accept="image/*"></div>'+
+    '<div class="fg"><label class="fl">BOT Yuzey</label><input type="file" class="fc" accept="image/*"></div></div>'+
+    '<button class="btn btp sm" onclick="sn(\'s\',\'Ortak Kayit\',\'Kaydedildi\')">Kaydet</button>';
+}
+function calcP(p){
+  var r=parseInt(document.getElementById(p+'r').value)||0;
+  var c=parseInt(document.getElementById(p+'c').value)||0;
+  var t=document.getElementById(p+'t');if(t)t.textContent=r*c;
+}
+
+// RENDER ROUTER
+function render(id){
+  try{
+  var fn={
+    'dash':rDash,'sensors':rSensors,'kurutma':rKurutma,'konfig':rKonfig,
+    'isemri':rIsemri,'yeni-wo':rYeniWO,'ie-ekrani':rIeEkrani,'ic-imalat':rIcImalat,
+    'smt':rSMT,'bolgesel':rBolgesel,'manuel':rManuel,'xray':rXray,
+    'kaplama':rKaplama,'yaslandirma':rYas,'depanelleme':rDep,'test':rTest,
+    'kalite':rKalite,'kpi':rKPI,'planlama':rPlan,'alarmlar':rAlarmlar,
+    'makine':rMakine,'raporlar':rRaporlar,'ai-rapor':rAiRapor,'kullanicilar':rUsers,'ayarlar':rAyarlar
+  };
+  if(fn[id])fn[id]();
+  }catch(e){console.error('Render hatasi ['+id+']:',e);}
+}
+
+// === DASHBOARD ===
+function rDash(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Gosterge Paneli</em></div><div class="pt">Sistem Gosterge Paneli</div><div class="ps">Canli uretim takibi - NexGen Savunma - Elektronik Dizgi Bolumu</div></div>';
+  h+='<div class="bgr"><button class="btn bts sm" onclick="gp(\'raporlar\')">&#8595; Rapor</button><button class="btn btp sm" onclick="gp(\'yeni-wo\')">+ Is Emri</button></div></div>';
+  h+='<div class="g4 mb2">';
+  h+='<div class="sc b"><div class="sl">Aktif Is Emri</div><div class="sv">12</div><div class="sn">3 bugun</div></div>';
+  h+='<div class="sc g"><div class="sl">Tamamlanan</div><div class="sv">87</div><div class="sn up">%98.1</div></div>';
+  h+='<div class="sc a"><div class="sl">Mal. Bekleyen</div><div class="sv">4</div><div class="sn wn">2 kritik</div></div>';
+  h+='<div class="sc r"><div class="sl">Aktif Alarm</div><div class="sv">2</div><div class="sn dn">Mudahale</div></div></div>';
+  // Sensor grid + KPI
+  h+='<div class="g3 mb2"><div class="card" style="grid-column:span 2">';
+  h+='<div class="ch"><div class="ct"><div class="ci">~</div>Sensor Paneli</div><button class="btn bts sm" onclick="gp(\'sensors\')">Tumu &#8594;</button></div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px">';
+  sensors.forEach(function(s){
+    h+='<div style="background:var(--bg4);border:1px solid '+(s.crit?'rgba(239,68,68,.38)':'var(--br2)')+';border-radius:7px;padding:9px">';
+    h+='<div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:5px">'+s.name+'</div>';
+    h+='<div style="display:flex;gap:7px">';
+    h+='<span style="font-size:16px;font-weight:700;font-family:JetBrains Mono,monospace;color:'+(s.crit?'var(--red)':'var(--c1)')+'">'+s.temp+'<span style="font-size:8px;color:var(--c3)">C</span></span>';
+    h+='<span style="font-size:16px;font-weight:700;font-family:JetBrains Mono,monospace">'+s.hum+'<span style="font-size:8px;color:var(--c3)">%</span></span></div>';
+    h+=(s.crit?'<span class="b bred" style="margin-top:4px;display:inline-flex">ALARM</span>':'<span class="b bgreen" style="margin-top:4px;display:inline-flex">OK</span>');
+    h+='</div>';
+  });
+  h+='</div></div>';
+  // KPI gauges
+  h+='<div class="card"><div class="ch"><div class="ct"><div class="ci">%</div>KPI Ozeti</div><button class="btn bts sm" onclick="gp(\'kpi\')">&#8594;</button></div>';
+  var kpis=[{l:'Teslimat',v:73.6,t:80,ok:false,c:'var(--amber)'},{l:'Rework',v:0.22,t:0.5,ok:true,c:'var(--green)'},{l:'Hurda',v:0.55,t:2,ok:true,c:'var(--green)'}];
+  kpis.forEach(function(k){
+    var r=34,circ=2*Math.PI*r,dash=circ*Math.min(k.v/k.t,1);
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid var(--br2)">';
+    h+='<div style="position:relative;width:50px;height:50px;flex-shrink:0">';
+    h+='<svg width="50" height="50" viewBox="0 0 50 50">';
+    h+='<circle cx="25" cy="25" r="'+r+'" fill="none" stroke="var(--bg4)" stroke-width="5"/>';
+    h+='<circle cx="25" cy="25" r="'+r+'" fill="none" stroke="'+k.c+'" stroke-width="5" stroke-dasharray="'+dash.toFixed(1)+' '+circ.toFixed(1)+'" stroke-linecap="round" transform="rotate(-90 25 25)"/>';
+    h+='</svg><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:JetBrains Mono,monospace;color:'+k.c+'">'+k.v+'%</div></div>';
+    h+='<div><div style="font-size:10.5px;color:var(--c2)">'+k.l+'</div>';
+    h+='<div style="font-size:9px;font-family:JetBrains Mono,monospace;color:'+(k.ok?'var(--green)':'var(--amber)')+'">Hdf:'+k.t+'% '+(k.ok?'&#10003;':'!')+'</div></div></div>';
+  });
+  h+='</div></div>';
+  // WOs + Proses
+  h+='<div class="g2">';
+  h+='<div class="card"><div class="ch"><div class="ct"><div class="ci">d</div>Aktif Is Emirleri</div><button class="btn bts sm" onclick="gp(\'isemri\')">Tumu &#8594;</button></div>';
+  h+='<div class="tw"><table><thead><tr><th>ISF No</th><th>Proje</th><th>Durum</th><th>Ilerleme</th><th></th></tr></thead><tbody>';
+  wos.slice(0,4).forEach(function(w){
+    h+='<tr><td class="mono tc" style="font-size:9px">'+w.isf.slice(0,11)+'</td><td style="font-weight:500">'+w.proj+'</td><td>'+sb(w.durum)+'</td><td style="min-width:80px">'+bar(w.pct)+'</td>';
+    h+='<td><button class="btn bts sm" onclick="gp(\'ie-ekrani\')">&#8594;</button></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  h+='<div class="card"><div class="ch"><div class="ct"><div class="ci">f</div>Proses Takibi</div></div>';
+  [{isf:'7847',proj:'GEZKIY',step:6,steps:['SMT','3D','Dizgi','Firin','AOI','B.Leh','M.Leh','Yik.']},{isf:'7849',proj:'Q PROJESI',step:2,steps:['SMT','X-Ray','Kap.','Test','K.K.']}].forEach(function(p){
+    h+='<div style="margin-bottom:9px;padding:8px;background:var(--bg4);border-radius:7px;border:1px solid var(--br2)">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">';
+    h+='<span><span class="mono tc" style="font-size:9px">'+p.isf+'</span> <span style="color:var(--c2);font-size:10.5px">'+p.proj+'</span></span>';
+    h+='<span class="b bamber">'+p.step+'/'+p.steps.length+'</span></div>';
+    h+='<div class="stps">';
+    p.steps.forEach(function(s,i){
+      h+='<div class="si'+(i<p.step?' dn':'')+'"><div class="sd '+(i<p.step?'dn':i===p.step?'ac':'')+'">'+( i<p.step?'&#10003;':i+1)+'</div>';
+      h+='<div class="slbl'+(i===p.step?' ac':'')+'">'+s+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  document.getElementById('dash-c').innerHTML=h;
+}
+
+// === SENSORS ===
+function rSensors(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Sicaklik &amp; Nem</em></div><div class="pt">Sicaklik ve Nem Izleme</div><div class="ps">8 cihaz - Argekip STS WiFi - 1dk kayit</div></div>';
+  h+='<div class="bgr"><button class="btn bts sm" onclick="sn(\'s\',\'Excel\',\'Indirildi\')">&#8595; Excel</button><button class="btn bts sm" onclick="sn(\'s\',\'JPG\',\'Indirildi\')">&#8595; JPG</button></div></div>';
+  h+='<div class="al ald">&#9888; <b>Elekt. Dizgi B1</b> - 28.4C &gt; 26C ust limit asildi! E-posta gonderildi.</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px">';
+  sensors.forEach(function(s){
+    h+='<div style="background:var(--bg3);border:1px solid '+(s.crit?'rgba(239,68,68,.4)':'var(--br2)')+';border-radius:8px;padding:11px">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px">';
+    h+='<div style="font-size:8.5px;color:var(--c3);font-family:JetBrains Mono,monospace;max-width:90px">'+s.name+'</div>';
+    h+=(s.crit?'<span class="b bred" style="font-size:8px">ALARM</span>':'<span class="b bgreen" style="font-size:8px">OK</span>')+' </div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px">';
+    h+='<div><div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">Sicaklik</div>';
+    h+='<div style="font-size:18px;font-weight:700;font-family:JetBrains Mono,monospace;color:'+(s.temp>s.maxT?'var(--red)':'var(--c1)')+'">'+s.temp+'<span style="font-size:8px;color:var(--c3)">C</span></div>';
+    h+='<div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">'+s.minT+'-'+s.maxT+'C</div></div>';
+    h+='<div><div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">Nem</div>';
+    h+='<div style="font-size:18px;font-weight:700;font-family:JetBrains Mono,monospace">'+s.hum+'<span style="font-size:8px;color:var(--c3)">%</span></div>';
+    h+='<div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">'+s.minH+'-'+s.maxH+'%</div></div></div>';
+    if(s.prob!==null)h+='<div style="font-size:8px;color:var(--c3);margin-top:4px">Prob: <span class="mono tc">'+s.prob+'C</span></div>';
+    h+='<div style="font-size:7.5px;color:var(--c4);font-family:JetBrains Mono,monospace;margin-top:3px">MAC: '+s.mac+'</div></div>';
+  });
+  h+='</div>';
+  h+='<div class="card mb2"><div class="ch"><div class="ct"><div class="ci">~</div>24 Saatlik Trend</div></div><canvas id="sCvs" height="140"></canvas></div>';
+  h+='<div class="card"><div class="ct mb1"><div class="ci">&#9646;</div>Son Kayitlar</div><div class="tw tsh"><table><thead><tr><th>Saat</th><th>Ortam Sic.</th><th>Bagil Nem</th><th>Prob Sic.</th><th>Durum</th></tr></thead><tbody>';
+  for(var i=0;i<12;i++){
+    var nd=new Date(Date.now()-i*60000),t=(28.4-i*.05+(Math.random()*.18-.09)).toFixed(1),hm=(42.1+(Math.random()*.28-.14)).toFixed(1),p=(27.8-i*.03).toFixed(1),cr=parseFloat(t)>26;
+    h+='<tr class="'+(cr?'trr':'')+'"><td class="mono" style="font-size:9px">'+String(nd.getHours()).padStart(2,'0')+':'+String(nd.getMinutes()).padStart(2,'0')+'</td>';
+    h+='<td class="mono" style="color:'+(cr?'var(--red)':'var(--c1)')+'">'+t+'</td><td class="mono">'+hm+'</td><td class="mono">'+p+'</td>';
+    h+='<td>'+(cr?'<span class="b bred">Alarm</span>':'<span class="b bgreen">Normal</span>')+'</td></tr>';
+  }
+  h+='</tbody></table></div></div>';
+  document.getElementById('sensors-c').innerHTML=h;
+  setTimeout(function(){
+    var ctx=document.getElementById('sCvs');if(!ctx)return;
+    var lbs=[];for(var i=0;i<24;i++)lbs.push(String(i).padStart(2,'0')+':00');
+    if(sChtInst)sChtInst.destroy();
+    sChtInst=new Chart(ctx,{type:'line',data:{labels:lbs,datasets:[
+      {label:'Sicaklik C',data:lbs.map(function(_,i){return+(22+Math.random()*5+(i>6&&i<20?2:0)).toFixed(1)}),borderColor:'#00e5c4',backgroundColor:'rgba(0,229,196,.06)',tension:.4,pointRadius:0,borderWidth:1.5,fill:true,yAxisID:'y'},
+      {label:'Limit 26C',data:Array(24).fill(26),borderColor:'rgba(239,68,68,.4)',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false,yAxisID:'y'},
+      {label:'Nem %',data:lbs.map(function(){return+(40+Math.random()*8).toFixed(1)}),borderColor:'#f59e0b',tension:.4,pointRadius:0,borderWidth:1.5,fill:false,yAxisID:'y2'}
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:9},boxWidth:9}}},scales:{x:{ticks:{color:'#556070',font:{size:8},maxTicksLimit:8},grid:{color:'rgba(255,255,255,.03)'}},y:{position:'left',ticks:{color:'#8892a4',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}},y2:{position:'right',ticks:{color:'#f59e0b',font:{size:8}},grid:{display:false}}}}});
+  },50);
+}
+
+// === KURUTMA ===
+function rKurutma(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Kurutma Kabini</em></div><div class="pt">Kurutma Kabini Izleme</div><div class="ps">IPC J-STD-033 - MSL takibi</div></div>';
+  h+='<div class="bgr"><button class="btn btp sm" onclick="openM(\'kM\')">+ Yerlestir</button><button class="btn bts sm" onclick="sn(\'s\',\'Gecmis\',\'Indirildi\')">&#8595; Gecmis</button></div></div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ch"><div class="ct"><div class="ci">o</div>Aktif Malzemeler</div><span class="b bteal" id="kc">'+kabItems.length+' adet</span></div>';
+  h+='<div class="tw"><table><thead><tr><th>Malzeme Kodu</th><th>Tanim</th><th>Lot No</th><th>MSL</th><th>Sure</th><th></th></tr></thead><tbody id="k-tbl"></tbody></table></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">~</div>Dolap Kosullari</div>';
+  h+='<div class="g2 mb2">';
+  h+='<div style="background:var(--bg4);border:1px solid var(--br2);border-radius:7px;padding:12px"><div class="sl">Sicaklik</div>';
+  h+='<div style="font-size:22px;font-weight:700;font-family:JetBrains Mono,monospace;color:var(--teal)" id="kT">24.1<span style="font-size:10px;color:var(--c3)">C</span></div>';
+  h+='<div style="font-size:8.5px;color:var(--c3);font-family:JetBrains Mono,monospace;margin-top:3px">Limit: 23-26C</div></div>';
+  h+='<div style="background:var(--bg4);border:1px solid var(--br2);border-radius:7px;padding:12px"><div class="sl">Bagil Nem</div>';
+  h+='<div style="font-size:22px;font-weight:700;font-family:JetBrains Mono,monospace;color:var(--amber)" id="kN">8.2<span style="font-size:10px;color:var(--c3)">%RH</span></div>';
+  h+='<div style="font-size:8.5px;color:var(--c3);font-family:JetBrains Mono,monospace;margin-top:3px">Limit: &lt;10%RH</div></div></div>';
+  h+='<div class="sh">MSL Referans</div><div class="tw"><table><thead><tr><th>MSL</th><th>Oda Suresi</th><th>Kurutma</th></tr></thead><tbody>';
+  [['1','Sinirsiz','-'],['2','4h-1 yil','125C/24h'],['3','168 saat','125C/48h'],['4','72 saat','125C/48h'],['5','24-48 saat','125C/48h'],['6','TOJ','125C/48h']].forEach(function(r){
+    h+='<tr><td>'+mslB(r[0])+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>';
+  });
+  h+='</tbody></table></div></div></div>';
+  document.getElementById('kurutma-c').innerHTML=h;
+  renderKab();
+}
+function renderKab(){
+  var t=document.getElementById('k-tbl');if(!t)return;
+  t.innerHTML=kabItems.map(function(it,i){
+    return '<tr><td class="mono tc" style="font-size:9px">'+it.kod+'</td><td>'+it.tanim+'</td><td class="mono" style="font-size:9px">'+it.lot+'</td><td>'+mslB(it.msl)+'</td><td class="mono" style="color:'+(it.sure>10?'var(--amber)':'var(--green)')+'">'+it.sure+'h</td><td><button class="btn btd sm" onclick="rmKab('+i+')">Cikar</button></td></tr>';
+  }).join('');
+  var kc=document.getElementById('kc');if(kc)kc.textContent=kabItems.length+' adet';
+}
+function addKab(){
+  kabItems.push({kod:document.getElementById('k-k').value||'ART'+Math.floor(Math.random()*99999),tanim:document.getElementById('k-t').value||'Yeni Malzeme',lot:document.getElementById('k-l').value||'L2025-001',msl:document.getElementById('k-m').value,sure:0});
+  renderKab();sn('s','Kurutma','Malzeme dolaba yerlestirildi');
+}
+function rmKab(i){kabItems.splice(i,1);renderKab();sn('i','Kurutma','Malzeme cikarildi')}
+
+// === KONFIG ===
+function rKonfig(){
+  var docs=[{n:'BOM Listesi',f:'xls/csv',ok:true},{n:'Pick & Placement',f:'xls/csv',ok:true},{n:'PCB Gerberi',f:'Gerber',ok:true},{n:'Assembly Drawing',f:'PDF',ok:false},{n:'Kaplama Dokumani',f:'PDF',ok:false}];
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Elektronik Konfig.</em></div><div class="pt">Elektronik Konfigurasyon</div></div></div>';
+  h+='<div class="al alw">&#9888; Assembly Drawing ve Kaplama Dokumani eksik - is emri olusturma engellenmiştir.</div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">d</div>Dokuman Kontrol (3/5)</div>';
+  docs.forEach(function(d){
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--br2)">';
+    h+='<div style="display:flex;align-items:center;gap:7px"><div style="width:15px;height:15px;border-radius:50%;background:'+(d.ok?'rgba(34,197,94,.12)':'rgba(239,68,68,.1)')+';display:flex;align-items:center;justify-content:center;font-size:8px;color:'+(d.ok?'var(--green)':'var(--red)')+'">'+( d.ok?'&#10003;':'&#10005;')+'</div>';
+    h+='<div><div style="font-size:11px;font-weight:500;color:'+(d.ok?'var(--c1)':'var(--red)')+'">'+d.n+'</div>';
+    h+='<div style="font-size:8.5px;color:var(--c3);font-family:JetBrains Mono,monospace">'+d.f+'</div></div></div>';
+    h+='<button class="btn '+(d.ok?'bts':'btp')+' sm" onclick="sn(\'s\',\'Dokuman\',\''+(d.ok?'Goruntulendi':'Yuklendi')+'\')">'+(d.ok?'Gor':'Yukle')+'</button></div>';
+  });
+  h+='<div style="height:2.5px;background:var(--bg4);border-radius:2px;overflow:hidden;margin-top:12px"><div style="height:100%;width:60%;background:var(--amber);border-radius:2px"></div></div>';
+  h+='<div style="font-size:9px;color:var(--c2);margin-top:4px">3/5 dokuman yuklendi</div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9881;</div>Proses Konfigurasyonu</div>';
+  [['Komponent Montaji','y'],['Kaplama','n'],['Elektriksel Test','y'],['Yaslandirma','n'],['X-Ray','y'],['Depanelleme','n']].forEach(function(kv){
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">';
+    h+='<span style="font-size:11px;color:var(--c2)">'+kv[0]+'</span>';
+    h+='<div style="display:flex;gap:3px"><span class="b '+(kv[1]==='y'?'bgreen':'')+'" style="cursor:pointer;padding:2px 9px">EVET</span><span class="b '+(kv[1]==='n'?'bred':'')+'" style="cursor:pointer;padding:2px 9px">HAYIR</span></div></div>';
+  });
+  h+='</div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">b</div>BOM Listesi</div><div class="tw tsh"><table><thead><tr><th>#</th><th>PID</th><th>Malzeme Kodu</th><th>Malzeme Adi</th><th>Ihtyc</th><th>Stok</th><th>Durum</th><th>Siparis No</th><th>MSL</th></tr></thead><tbody>';
+  bomItems.forEach(function(b,i){
+    var e=b.stok<b.ihtyc;
+    h+='<tr class="'+(e?'trr':'')+'"><td class="mono" style="font-size:9px">'+(i+1)+'</td><td class="mono ts" style="font-size:9px">'+b.pid+'</td><td class="mono tc" style="font-size:9px">'+b.kod+'</td><td>'+b.ad+'</td>';
+    h+='<td class="mono" style="text-align:center">'+b.ihtyc+'</td><td class="mono" style="color:'+(e?'var(--red)':'var(--green)')+';text-align:center">'+b.stok+'</td>';
+    h+='<td>'+(e?'<span class="b bamber" style="font-size:8.5px">'+b.ack+'</span>':'<span class="b bgreen" style="font-size:8.5px">Yeterli</span>')+'</td>';
+    h+='<td class="mono ts" style="font-size:9px">'+(b.sip||'-')+'</td><td>'+mslB(b.msl)+'</td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('konfig-c').innerHTML=h;
+}
+
+// === IS EMRI ===
+function rIsemri(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Is Emri</em></div><div class="pt">Is Emri Yonetimi (ELK)</div></div>';
+  h+='<div class="bgr"><button class="btn btp sm" onclick="gp(\'yeni-wo\')">+ Yeni</button><button class="btn bts sm" onclick="sn(\'s\',\'Excel\',\'Indirildi\')">&#8595; Excel</button></div></div>';
+  h+='<div class="tabs"><button class="tab on" onclick="swTab(this)">Tumu (12)</button><button class="tab" onclick="swTab(this)">Devam (5)</button><button class="tab" onclick="swTab(this)">Bekleyen (4)</button><button class="tab" onclick="swTab(this)">Tamamlanan (3)</button></div>';
+  h+='<div class="card"><div class="tw"><table><thead><tr><th>ISF No</th><th>Proje</th><th>Parca No</th><th>Adet</th><th>Malzeme</th><th>Baslangic</th><th>Plan Bitis</th><th>Durum</th><th>Ilerleme</th><th></th></tr></thead><tbody>';
+  wos.forEach(function(w){
+    h+='<tr><td class="mono tc" style="font-size:9px">'+w.isf+'</td><td style="font-weight:500">'+w.proj+'</td><td class="mono ts" style="font-size:9px">'+w.pn+'</td>';
+    h+='<td class="mono" style="text-align:center">'+w.adet+'</td>';
+    h+='<td>'+(w.mal==='Tamam'?'<span class="b bgreen">OK</span>':w.mal==='Eksik'?'<span class="b bred">Eksik</span>':'<span class="b bamber">Bekl.</span>')+'</td>';
+    h+='<td class="mono" style="font-size:9px">'+w.start+'</td><td class="mono" style="font-size:9px">'+w.plan+'</td><td>'+sb(w.durum)+'</td>';
+    h+='<td style="min-width:90px">'+bar(w.pct)+'</td><td><button class="btn bts sm" onclick="gp(\'ie-ekrani\')">&#8594;</button></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('isemri-c').innerHTML=h;
+}
+
+// === YENI IS EMRI ===
+function rYeniWO(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Yeni Is Emri</em></div><div class="pt">Yeni Is Emri Olustur</div></div><button class="btn bts sm" onclick="gp(\'isemri\')">&#8592; Liste</button></div>';
+  h+='<div class="al alw">&#9888; BOM listesi (xls/csv) ve 5 zorunlu dokuman tamamlanmadan is emri olusturulamaz.</div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">d</div>Temel Bilgiler</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Proje / ISF Kodu</label><input class="fc" placeholder="GEZKIY..."></div><div class="fg"><label class="fl">Adet</label><input type="number" class="fc" value="20"></div></div>';
+  h+='<div class="fg"><label class="fl">Parca No (ART)</label><input class="fc" placeholder="940.01.ET..."></div>';
+  h+='<div class="fg"><label class="fl">Firma / Tezgah / Hat</label><input class="fc" placeholder="ALTINAY - Elektronik Dizgi Hat-1"></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9881;</div>Proses Secimi</div><div id="nwp" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px"></div>';
+  h+='<div class="fg"><label class="fl">Kullanilacak Lehim Turu</label><select class="fc"><option>Standart - ART0017600 ALPHA OM5002</option><option>Ozel Istek</option></select></div></div></div>';
+  h+='<div class="card mb2"><div class="ch"><div class="ct"><div class="ci">b</div>BOM Listesi &amp; Malzeme Kontrolu</div><button class="btn bts sm" onclick="sn(\'s\',\'BOM\',\'Dosya yuklendi\')">&#8593; BOM Yukle</button></div>';
+  h+='<div class="al alw" style="font-size:9.5px">&#9888; Kirmizi satirlar stok yetersiz. Aciklama secilmesi zorunludur.</div>';
+  h+='<div class="tw tsh"><table><thead><tr><th>#</th><th>PID</th><th>Malzeme Kodu</th><th>Malzeme Adi</th><th>Ihtyc</th><th>Depo Stok</th><th>Aciklama</th><th>Siparis No</th><th>MSL</th></tr></thead><tbody>';
+  bomItems.forEach(function(b,i){
+    var e=b.stok<b.ihtyc;
+    h+='<tr class="'+(e?'trr':'')+'"><td class="mono" style="font-size:9px">'+(i+1)+'</td><td class="mono ts" style="font-size:9px">'+b.pid+'</td>';
+    h+='<td class="mono tc" style="font-size:9px">'+b.kod+'</td><td>'+b.ad+'</td>';
+    h+='<td class="mono" style="text-align:center">'+b.ihtyc+'</td>';
+    h+='<td class="mono" style="color:'+(e?'var(--red)':'var(--green)')+';text-align:center">'+b.stok+'</td>';
+    h+='<td>'+(e?'<select class="fc" style="padding:2px 6px;font-size:9px;height:auto"><option>Dizilmeyecek</option><option selected>Siparis Verildi</option><option>Depo bitene kadar</option><option>Alternatif Malzeme</option></select>':'-')+'</td>';
+    h+='<td><input class="fc" style="padding:2px 7px;height:auto;font-size:9px" value="'+b.sip+'" placeholder="'+(e?'PO-2025-...':'')+'"></td>';
+    h+='<td>'+mslB(b.msl)+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px"><span style="font-size:9.5px;color:var(--c3)">Kirmizi: stok yetersiz</span>';
+  h+='<div class="bgr"><button class="btn btg" onclick="sn(\'s\',\'Is Emri\',\'Is emri olusturuldu! Depo transfer talebi gonderildi.\');gp(\'isemri\')">&#10003; Is Emri Olustur &amp; Gonder</button><button class="btn bts sm">Taslak Kaydet</button></div></div></div>';
+  document.getElementById('yeniwo-c').innerHTML=h;
+  var nwp=document.getElementById('nwp');
+  if(nwp&&!nwp.childNodes.length){
+    ['SMT Dizgi','Bolg. Lehim','M.Lehimleme','Yikama','Kaplama','X-Ray','Yaslandirma','Depanelleme','Test','Yeniden Islem'].forEach(function(p){
+      var btn=document.createElement('span');btn.className='b bamber';btn.style.cssText='cursor:pointer;padding:4px 10px';btn.textContent=p;
+      btn.onclick=function(){btn.classList.toggle('bamber');btn.classList.toggle('bteal')};
+      nwp.appendChild(btn);
+    });
+  }
+}
+
+// === IS EMRI EKRANI ===
+function rIeEkrani(){
+  var active=6;
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Is Emri Ekrani</em></div><div class="pt">Is Emri Ekrani - 7847-21582601</div></div><button class="btn bts sm" onclick="gp(\'isemri\')">&#8592; Liste</button></div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">d</div>Proje Bilgileri</div>';
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px">';
+  [['Proje','GEZKIY'],['ISF No','7847-21582601'],['Parca No','940.01.ET.00.KT.230001.AA'],['Adet','20'],['Plan Bitis','17.01.2025'],['Lehim','Standart - OM5002'],['Test','EVET'],['X-Ray','EVET'],['Kaplama','HAYIR'],['Depanelleme','EVET']].forEach(function(kv){
+    h+='<div style="padding:4px 0;border-bottom:1px solid var(--br2)"><div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">'+kv[0]+'</div>';
+    h+='<div style="font-size:10px;font-family:JetBrains Mono,monospace;color:var(--teal)">'+kv[1]+'</div></div>';
+  });
+  h+='</div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">o</div>QR Kod Uretimi</div>';
+  h+='<div style="font-size:9.5px;color:var(--c2);margin-bottom:8px">Format: <span class="mono tc">ISF_NO $ TOP/BOT $ 001</span></div>';
+  h+='<div class="bgr mb2"><button class="btn bts sm" onclick="genQR(\'TOP\')">1 Yuzey - TOP (20 kod)</button><button class="btn bts sm" onclick="genQR(\'BOTH\')">2 Yuzey - TOP+BOT (40 kod)</button></div>';
+  h+='<div id="qr-area"></div></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9638;</div>Imalat Operasyon Listesi - Yatay Akis</div>';
+  h+='<div style="overflow-x:auto"><div style="display:flex;gap:5px;min-width:max-content;padding:2px 0 5px">';
+  ops.forEach(function(op,i){
+    h+='<div style="min-width:82px;border-radius:7px;padding:8px 6px;text-align:center;cursor:pointer;background:'+(i<active?'var(--t3)':i===active?'rgba(245,158,11,.08)':'var(--bg4)')+';border:1px solid '+(i<active?'var(--br)':i===active?'rgba(245,158,11,.28)':'var(--br2)')+'\">';
+    h+='<div style="font-size:7.5px;font-weight:700;color:'+(i<active?'var(--teal)':i===active?'var(--amber)':'var(--c3)')+';font-family:JetBrains Mono,monospace;margin-bottom:5px">'+op+'</div>';
+    h+='<div style="width:16px;height:16px;border-radius:50%;background:'+(i<active?'var(--teal)':i===active?'var(--amber)':'var(--bg3)')+';margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--bg)">'+( i<active?'&#10003;':i+1)+'</div></div>';
+  });
+  h+='</div></div></div>';
+  document.getElementById('ieekrani-c').innerHTML=h;
+  genQR('TOP');
+}
+function genQR(mode){
+  var base='7847-21582601',codes=[];
+  for(var i=1;i<=5;i++)codes.push(base+'$TOP$'+String(i).padStart(3,'0'));
+  if(mode==='BOTH')for(var i=1;i<=5;i++)codes.push(base+'$BOT$'+String(i).padStart(3,'0'));
+  var a=document.getElementById('qr-area');if(!a)return;
+  var h='<div class="al als" style="font-size:9px;margin-bottom:8px">&#10003; '+(mode==='BOTH'?10:5)+' QR kod olusturuldu</div>';
+  h+='<div style="display:flex;flex-wrap:wrap;gap:7px">';
+  codes.forEach(function(c,idx){
+    h+='<div style="text-align:center"><canvas id="qr-'+idx+'" width="52" height="52" style="background:white;border-radius:4px;padding:3px;display:block;cursor:pointer" onclick="sn(\'s\',\'QR Kod\',\''+c+'\')"></canvas>';
+    h+='<div style="font-size:7.5px;color:var(--c3);font-family:JetBrains Mono,monospace;margin-top:2px">'+c.split('$').slice(1).join('$')+'</div></div>';
+  });
+  h+='</div>';
+  a.innerHTML=h;
+  codes.forEach(function(c,idx){
+    var cv=document.getElementById('qr-'+idx);if(!cv)return;
+    var ctx2=cv.getContext('2d');var s=c.split('').reduce(function(a,ch){return a+ch.charCodeAt(0)},0);
+    ctx2.fillStyle='#fff';ctx2.fillRect(0,0,52,52);
+    ctx2.fillStyle='#111';
+    for(var r=0;r<6;r++)for(var cl=0;cl<6;cl++){if((s*31+r*13+cl*7+r*cl)%17<8)ctx2.fillRect(cl*7+2,r*7+2,6,6)}
+    ctx2.strokeStyle='#111';ctx2.lineWidth=1.5;
+    ctx2.strokeRect(2,2,12,12);ctx2.strokeRect(38,2,12,12);ctx2.strokeRect(2,38,12,12);
+  });
+}
+
+// === IC IMALAT ===
+function rIcImalat(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Ic Imalat</em></div><div class="pt">Ic Imalat Ekrani</div></div></div>';
+  h+='<div class="card mb2"><div class="ct mb2"><div class="ci">o</div>5 Metotlu Filtreleme</div>';
+  h+='<div class="fr3 mb1"><div class="fg"><label class="fl">1. Proje Kodu</label><input class="fc" placeholder="GEZKIY..."></div>';
+  h+='<div class="fg"><label class="fl">2. Durum</label><select class="fc"><option>Tumu</option><option>Devam</option><option>Bekliyor</option><option>Tamamlandi</option></select></div>';
+  h+='<div class="fg"><label class="fl">3. Parca No</label><input class="fc" placeholder="940.01..."></div></div>';
+  h+='<div class="fr mb1"><div class="fg"><label class="fl">4. Tarih Araligi</label><div style="display:flex;gap:6px"><input type="date" class="fc" value="2025-01-01"><input type="date" class="fc" value="2025-04-14"></div></div>';
+  h+='<div class="fg"><label class="fl">5. ISF Numarasi</label><input class="fc" placeholder="7847-..."></div></div>';
+  h+='<div class="bgr"><button class="btn btp sm">Filtrele</button><button class="btn bts sm" onclick="sn(\'s\',\'Excel\',\'Indirildi\')">&#8595; Excel</button></div></div>';
+  h+='<div class="card mb2"><div class="ct mb2"><div class="ci">&#9638;</div>Is Emirleri</div><div class="tw tsh"><table><thead><tr><th>PID</th><th>ISF</th><th>Malzeme</th><th>Baslama</th><th>Plan Bitis</th><th>Adet</th><th>Durum</th><th></th></tr></thead><tbody>';
+  wos.forEach(function(w){
+    h+='<tr><td class="mono tc" style="font-size:9px">'+w.proj+'</td><td class="mono" style="font-size:9px">'+w.isf+'</td>';
+    h+='<td>'+(w.mal==='Tamam'?'<span class="b bgreen">Hazir</span>':'<span class="b bamber">Bekl.</span>')+'</td>';
+    h+='<td class="mono" style="font-size:9px">'+w.start+'</td><td class="mono" style="font-size:9px">'+w.plan+'</td>';
+    h+='<td class="mono" style="text-align:center">'+w.adet+'</td><td>'+sb(w.durum)+'</td>';
+    h+='<td><button class="btn bts sm" onclick="gp(\'smt\')">Proses &#8594;</button></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9672;</div>Parca Imalat Formu - 940.01.ET.00.KT.230001.AA</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px">';
+  [['Proje','GEZKIY'],['ISF No','7847-21582601'],['Adet','20'],['Plan Bitis','17.01.2025'],['Komp. Cesit','48'],['Komp. Sayisi','2,304'],['Form Tarihi','14.04.2025'],['Durum','Devam']].forEach(function(kv){
+    h+='<div><div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace">'+kv[0]+'</div><div style="font-family:JetBrains Mono,monospace;color:var(--teal)">'+kv[1]+'</div></div>';
+  });
+  h+='</div><div style="overflow-x:auto"><div style="display:flex;gap:5px;min-width:max-content;padding:2px 0 5px">';
+  var pages=['smt','smt','smt','smt','smt','bolgesel','manuel','kaplama','kaplama','xray','yaslandirma','depanelleme','test','kalite'];
+  ops.forEach(function(op,i){
+    var active=6;
+    h+='<div style="min-width:78px;border-radius:6px;padding:7px 5px;text-align:center;cursor:pointer;background:'+(i<active?'var(--t3)':i===active?'rgba(245,158,11,.08)':'var(--bg4)')+';border:1px solid '+(i<active?'var(--br)':i===active?'rgba(245,158,11,.25)':'var(--br2)')+'\">';
+    h+='<div style="font-size:7.5px;font-weight:700;color:'+(i<active?'var(--teal)':i===active?'var(--amber)':'var(--c3)')+';font-family:JetBrains Mono,monospace;margin-bottom:4px">'+op+'</div>';
+    h+='<div style="width:15px;height:15px;border-radius:50%;background:'+(i<active?'var(--teal)':i===active?'var(--amber)':'var(--bg3)')+';margin:0 auto;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:700;color:var(--bg)">'+( i<active?'&#10003;':i+1)+'</div>';
+    h+='<button class="btn bts" style="font-size:7px;padding:2px 4px;margin-top:5px" onclick="gp(\''+pages[i]+'\')">Proses</button></div>';
+  });
+  h+='</div></div></div>';
+  document.getElementById('icimalat-c').innerHTML=h;
+}
+
+// === SMT ===
+function rSMT(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>SMT Proses</em></div><div class="pt">SMT Proses Detay Kayitlari</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="al ali">&#128241; Parca Imalat Formu QR kodu ile mobil cihazdan erisilebilir.</div>';
+  h+='<div class="tabs" id="smt-tabs"><button class="tab on" onclick="swTab(this);showSmt(\'ortak\')">Ortak</button>';
+  h+='<button class="tab" onclick="swTab(this);showSmt(\'kremLehim\')">Krem Lehim</button>';
+  h+='<button class="tab" onclick="swTab(this);showSmt(\'dizgi\')">Dizgi</button>';
+  h+='<button class="tab" onclick="swTab(this);showSmt(\'reflow\')">Reflow/Firin</button>';
+  h+='<button class="tab" onclick="swTab(this);showSmt(\'aoi\')">AOI</button></div>';
+  h+='<div id="smt-body"><div class="card">'+ortakHtml('so')+'</div></div>';
+  document.getElementById('smt-c').innerHTML=h;
+}
+var smtContent={
+  ortak:function(){return '<div class="card">'+ortakHtml('so2')+'</div>'},
+  kremLehim:function(){return '<div class="g2"><div class="card"><div class="ct mb2"><div class="ci">p</div>Krem Lehim Baskı Makinesi</div>'+
+    '<div class="fg"><label class="fl">Krem Lehim Parca No</label><div class="fc fcr">ART0017600 - ALPHA OM5002</div></div>'+
+    '<div class="fg"><label class="fl">Krem Lehim Lot No</label><input class="fc" value="L2025-04-001"></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Program Adi (TOP)</label><input class="fc" value="GEZ_230001_TOP_v3"></div><div class="fg"><label class="fl">Program Adi (BOT)</label><input class="fc" value="GEZ_230001_BOT_v2"></div></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Dolaptan Cikarma</label><input type="datetime-local" class="fc" id="klc" value="2025-04-14T07:30" oninput="chkLehim()"></div>'+
+    '<div class="fg"><label class="fl">Kapak Acilis</label><input type="datetime-local" class="fc" id="kla" value="2025-04-14T16:30" oninput="chkLehim()"></div></div>'+
+    '<div id="lw" class="al als" style="font-size:9.5px">&#10003; Lehim sure kontrolu gecti - 9.0 saat (kural: 8-72 saat)</div>'+
+    '<button class="btn btp sm" onclick="sn(\'s\',\'Krem Lehim\',\'Proses kaydi tamamlandi\')">Kaydet</button></div>'+
+    '<div class="card"><div class="ct mb2"><div class="ci">i</div>Lehim Kontrol</div>'+
+    '<div class="dr"><span class="dk">Lehim Tipi</span><span class="dv2 tc">Sn-Ag-Cu Standart</span></div>'+
+    '<div class="dr"><span class="dk">Viskozite</span><span class="dv2">550,000 cPs</span></div>'+
+    '<div class="dr"><span class="dk">Stencil Kalinligi</span><span class="dv2">0.12 mm</span></div>'+
+    '<div class="dr"><span class="dk">Son Kullanma</span><span class="dv2 ta">2025-08-31</span></div></div></div>'},
+  dizgi:function(){return '<div class="card"><div class="ct mb2"><div class="ci">r</div>Dizgi Makinesi</div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Program Adi (TOP)</label><input class="fc" value="GEZ_230001_TOP"></div><div class="fg"><label class="fl">Program Adi (BOT)</label><input class="fc" value="GEZ_230001_BOT"></div></div>'+
+    '<div class="fg"><label class="fl">Elde Dizilecek Komponent</label><input class="fc" placeholder="Ref no..."></div>'+
+    '<div class="fg"><label class="fl">Test Sonrasi Dizilecek</label><input class="fc" placeholder="Ref no..."></div>'+
+    '<div class="fg"><label class="fl">Yikamaya Uygun Olmayan</label><input class="fc" placeholder="Ref no..."></div>'+
+    '<button class="btn btp sm" onclick="sn(\'s\',\'Dizgi\',\'Proses kaydi tamamlandi\')">Kaydet</button></div>'},
+  reflow:function(){return '<div class="card"><div class="ct mb2"><div class="ci">f</div>Reflow / Firin</div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Program Adi (TOP)</label><input class="fc" value="RF_GEZ_TOP_v2"></div><div class="fg"><label class="fl">Program Adi (BOT)</label><input class="fc" value="RF_GEZ_BOT_v2"></div></div>'+
+    '<div class="fg"><label class="fl">Isi Profil Kaydi (PDF)</label><input type="file" class="fc" accept=".pdf"></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Maks. Sicaklik (C)</label><input type="number" class="fc" value="245"></div><div class="fg"><label class="fl">Profil Suresi (sn)</label><input type="number" class="fc" value="420"></div></div>'+
+    '<button class="btn btp sm" onclick="sn(\'s\',\'Reflow\',\'Proses kaydi tamamlandi\')">Kaydet</button></div>'},
+  aoi:function(){return '<div class="card"><div class="ct mb2"><div class="ci">l</div>3D Optik Inceleme (AOI)</div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Program Adi (TOP)</label><input class="fc" value="AOI_GEZ_TOP_v1"></div><div class="fg"><label class="fl">Program Adi (BOT)</label><input class="fc" value="AOI_GEZ_BOT_v1"></div></div>'+
+    '<div class="fg"><label class="fl">Hata Tespit Durumu</label><select class="fc"><option>Hata Yok - Gecti</option><option>Hata Tespit Edildi - Rework Gerekli</option></select></div>'+
+    '<div class="fr"><div class="fg"><label class="fl">Tespit Edilen Hata Sayisi</label><input type="number" class="fc" value="0"></div><div class="fg"><label class="fl">Makine</label><select class="fc"><option>AOI-01</option></select></div></div>'+
+    '<button class="btn btp sm" onclick="sn(\'s\',\'AOI\',\'Proses kaydi tamamlandi\')">Kaydet</button></div>'}
+};
+function showSmt(n){var b=document.getElementById('smt-body');if(b&&smtContent[n])b.innerHTML=smtContent[n]()}
+function chkLehim(){
+  var c=document.getElementById('klc'),a=document.getElementById('kla'),w=document.getElementById('lw');
+  if(!c||!a||!w)return;
+  var diff=(new Date(a.value)-new Date(c.value))/3600000;
+  if(diff<8){w.className='al ald';w.textContent='HATA: En az 8 saat gecmeli!'}
+  else if(diff>72){w.className='al ald';w.textContent='HATA: 72 saati asiyor!'}
+  else{w.className='al als';w.textContent='TAMAM: Sure kontrolu gecti - '+diff.toFixed(1)+' saat (kural: 8-72h)'}
+}
+
+// === BOLGESEL ===
+function rBolgesel(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Bolgesel Lehimleme</em></div><div class="pt">Bolgesel Lehimleme Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="al ali">&#128241; Mobil erisim aktif. Personel otomatik loglanir.</div>';
+  h+='<div class="g2"><div class="card">'+ortakHtml('bo')+'</div>';
+  h+='<div class="card"><div class="ch"><div class="ct"><div class="ci">n</div>Nozzle Programlari</div>';
+  h+='<div class="bgr"><button class="btn btp sm" onclick="addNozzle()">+ Ekle</button><button class="btn btd sm" onclick="rmNozzle()">- Cikar</button></div></div>';
+  h+='<div id="nozzle-list"></div>';
+  h+='<div class="fg"><label class="fl">Lehim Pota Parca No</label><input class="fc" value="ART0017600 - ALPHA OM5002"></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Bolgesel\',\'Proses kaydi tamamlandi\')">Tumumunu Kaydet</button></div></div>';
+  document.getElementById('bolgesel-c').innerHTML=h;
+  renderNozzles();
+}
+function renderNozzles(){
+  var pl=document.getElementById('nozzle-list');if(!pl)return;
+  pl.innerHTML=nozzleList.map(function(n,i){
+    return '<div style="background:var(--bg4);border:1px solid var(--br2);border-radius:6px;padding:10px;margin-bottom:7px">'+
+      '<div class="fr3 mb1"><div class="fg"><label class="fl">Program Adi</label><input class="fc" value="PROG_'+(i+1)+'_GEZ"></div>'+
+      '<div class="fg"><label class="fl">Yuzey</label><select class="fc"><option>TOP</option><option>BOT</option></select></div>'+
+      '<div class="fg"><label class="fl">Pota Sic. (183-300C)</label><input type="number" class="fc" value="'+n.sicaklik+'" min="183" max="300" oninput="chkPota(this,'+i+')"></div></div>'+
+      '<div id="pw-'+i+'" class="wbox"></div></div>';
+  }).join('');
+}
+function addNozzle(){nozzleList.push({sicaklik:260});renderNozzles();sn('s','Nozzle','Program eklendi')}
+function rmNozzle(){if(nozzleList.length>1){nozzleList.pop();renderNozzles();sn('i','Nozzle','Program kaldirildi')}}
+function chkPota(el,i){
+  var v=parseFloat(el.value),w=document.getElementById('pw-'+i);
+  if(w){if(v<183||v>300){w.style.display='block';w.textContent='UYARI: Pota sicakligi 183-300C olmali! ('+v+'C girildi)'}else w.style.display='none'}
+}
+
+// === MANUEL ===
+function rManuel(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Manuel Lehimleme</em></div><div class="pt">Manuel Lehimleme &amp; Rework</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="al ali">&#128241; QR barkod ile mobil cihazdan erisilebilir.</div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">e</div>Ekipman Parametreleri</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Havya Sicakligi (250-400C)</label><input type="number" class="fc" id="ht" value="360" min="250" max="400" oninput="chkT(\'ht\',\'hw\',250,400)"></div>';
+  h+='<div class="fg"><label class="fl">Havya Seri No</label><select class="fc"><option>H1-257288-102</option></select></div></div>';
+  h+='<div id="hw" class="wbox"></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Alt Isitici Sic. (0-160C)</label><input type="number" class="fc" id="at" value="100" min="0" max="160" oninput="chkT(\'at\',\'aw\',0,160)"></div>';
+  h+='<div class="fg"><label class="fl">Alt Isitici Seri No</label><select class="fc"><option>I1-271028-035</option></select></div></div>';
+  h+='<div id="aw" class="wbox"></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Sicak Hava (250-400C)</label><input type="number" class="fc" id="hat" value="350" min="250" max="400" oninput="chkT(\'hat\',\'haw\',250,400)"></div>';
+  h+='<div class="fg"><label class="fl">Sicak Hava Seri No</label><select class="fc"><option>H1-317HF01035</option></select></div></div>';
+  h+='<div id="haw" class="wbox"></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Rework Makinesi</label><select class="fc"><option>HR600-20116</option></select></div>';
+  h+='<div class="fg"><label class="fl">Rework Profil</label><input class="fc" placeholder="Profil adi..."></div></div>';
+  h+='<div class="fg"><label class="fl">Lehim Parca No</label><div class="fc fcr">ART0017600 - ALPHA OM5002</div></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Parametreler\',\'Ekipman parametreleri kaydedildi\')">Parametreleri Kaydet</button></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">k</div>Komponent Islem Kaydi</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Uygulama Turu</label>';
+  h+='<select class="fc" id="ut" onchange="tglT()"><option value="m">Montaj</option><option value="r">Yeniden Islem (Rework)</option></select></div>';
+  h+='<div class="fg"><label class="fl">Tespit Eden</label><select class="fc" id="te" disabled style="opacity:.4"><option>AOI</option><option>Kalite</option><option>Uretim Personeli</option></select></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Hata Sebebi</label><select class="fc"><option>Uretim Kaynakli</option><option>Tasarim Kaynakli</option></select></div>';
+  h+='<div class="fg"><label class="fl">PCB Yuzeyi</label><select class="fc"><option>TOP</option><option>BOT</option></select></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Referans No</label><input class="fc" id="mn-ref" placeholder="R1, C2..."></div>';
+  h+='<div class="fg"><label class="fl">PCB Seri No</label><input class="fc" id="mn-sn" placeholder="7847$TOP$001"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Parca No (ART)</label><input class="fc" id="mn-pn" placeholder="ART..."></div>';
+  h+='<div class="fg"><label class="fl">Islem Adedi</label><input type="number" class="fc" id="mn-ad" value="1"></div></div>';
+  h+='<button class="btn btp sm mb2" onclick="addManuel()">+ Hatayi Kaydet - Tabloya Ekle</button>';
+  h+='<div class="tw tsh"><table><thead><tr><th>Tur</th><th>Ref No</th><th>PCB S/N</th><th>Yuzey</th><th>Adet</th><th>Havya C</th><th>Operator</th></tr></thead><tbody id="m-tbl"></tbody></table></div></div></div>';
+  document.getElementById('manuel-c').innerHTML=h;
+}
+function chkT(iid,wid,mn,mx){
+  var v=parseFloat(document.getElementById(iid).value);var w=document.getElementById(wid);
+  if(w){if(v<mn||v>mx){w.style.display='block';w.textContent='UYARI: Deger '+mn+'-'+mx+'C araliginda olmali!'}else w.style.display='none'}
+}
+function tglT(){
+  var v=document.getElementById('ut').value;var te=document.getElementById('te');
+  if(te){te.disabled=v!=='r';te.style.opacity=v==='r'?'1':'.4'}
+}
+function addManuel(){
+  var row={turu:document.getElementById('ut').value==='r'?'Rework':'Montaj',ref:document.getElementById('mn-ref').value||'R'+Math.floor(Math.random()*999),sn:document.getElementById('mn-sn').value||'7847$TOP$001',adet:document.getElementById('mn-ad').value||1,havya:360};
+  manuelRows.push(row);
+  var t=document.getElementById('m-tbl');
+  if(t)t.innerHTML=manuelRows.map(function(r){return '<tr><td><span class="b '+(r.turu==='Montaj'?'bblue':'bamber')+'">'+r.turu+'</span></td><td class="mono" style="font-size:9px">'+r.ref+'</td><td class="mono" style="font-size:9px">'+r.sn+'</td><td><span class="b bgray">TOP</span></td><td class="mono" style="text-align:center">'+r.adet+'</td><td class="mono ta">'+r.havya+'C</td><td style="font-size:10px;color:var(--c2)">Operator</td></tr>'}).join('');
+  sn('s','Manuel Lehim','Komponent kaydi eklendi');
+}
+
+// === X-RAY ===
+function rXray(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>X-Ray</em></div><div class="pt">X-Ray Inceleme Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="al ali">&#128241; QR barkod ile mobil cihazdan erisilebilir.</div>';
+  h+='<div class="g2 mb2"><div class="card">'+ortakHtml('xo')+'</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">x</div>X-Ray Goruntu Kayit</div>';
+  h+='<div class="g2 mb2">';
+  h+='<div><div style="background:var(--bg4);border:1px solid var(--br2);border-radius:6px;overflow:hidden;aspect-ratio:4/3;cursor:pointer" onclick="sn(\'i\',\'X-Ray\',\'Goruntu buyutuluyor...\')"><canvas id="xc1" style="width:100%;height:100%"></canvas></div>';
+  h+='<div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace;text-align:center;margin-top:4px">BGA U1 - Void Analizi</div></div>';
+  h+='<div><div style="background:var(--bg4);border:1px solid var(--br2);border-radius:6px;overflow:hidden;aspect-ratio:4/3;cursor:pointer" onclick="sn(\'i\',\'X-Ray\',\'Goruntu buyutuluyor...\')"><canvas id="xc2" style="width:100%;height:100%"></canvas></div>';
+  h+='<div style="font-size:8px;color:var(--c3);font-family:JetBrains Mono,monospace;text-align:center;margin-top:4px">BGA U2 - Solder Joint</div></div></div>';
+  h+='<div class="fg"><label class="fl">X-Ray Dosya Ekle</label><input type="file" class="fc" accept="image/*,.pdf"></div>';
+  h+='<button class="btn bts sm" onclick="sn(\'s\',\'X-Ray\',\'Gorsel yuklendi\')">+ Gorsel Ekle</button></div></div>';
+  h+='<div class="card mb2"><div class="ch"><div class="ct"><div class="ci">&#9646;</div>Muayene Kayitlari</div><button class="btn btp sm" onclick="addXR()">+ Ekle</button></div>';
+  h+='<div class="tw tsh"><table><thead><tr><th>Referans No</th><th>Parca No</th><th>PCB S/N</th><th>Kontrol Eden</th><th>Sonuc</th></tr></thead><tbody id="xr-tbl"></tbody></table></div></div>';
+  h+='<button class="btn btp" onclick="sn(\'s\',\'X-Ray\',\'Tum kayitlar tamamlandi - Personel loglandı\')">Tum Kayitlari Tamamla</button>';
+  document.getElementById('xray-c').innerHTML=h;
+  setTimeout(function(){
+    [['xc1','BGA U1 - 256 ball'],['xc2','BGA U2 - 144 ball']].forEach(function(pair,idx){
+      var cv=document.getElementById(pair[0]);if(!cv)return;
+      cv.width=200;cv.height=150;
+      var ctx2=cv.getContext('2d');
+      ctx2.fillStyle='#060810';ctx2.fillRect(0,0,200,150);
+      ctx2.strokeStyle='rgba(0,229,196,.06)';ctx2.lineWidth=1;
+      for(var i=0;i<200;i+=20){ctx2.beginPath();ctx2.moveTo(i,0);ctx2.lineTo(i,150);ctx2.stroke()}
+      for(var i=0;i<150;i+=20){ctx2.beginPath();ctx2.moveTo(0,i);ctx2.lineTo(200,i);ctx2.stroke()}
+      var pads=idx===0?[[40,45],[100,45],[160,45],[40,105],[100,105],[160,105]]:[[65,60],[135,60],[65,110],[135,110]];
+      pads.forEach(function(xy){
+        var x=xy[0],y=xy[1],vd=Math.random()>.85;
+        ctx2.strokeStyle=vd?'rgba(239,68,68,.85)':'rgba(0,229,196,.6)';ctx2.lineWidth=1.5;
+        ctx2.beginPath();ctx2.arc(x,y,10,0,Math.PI*2);ctx2.stroke();
+        for(var k=0;k<8;k++){var a=Math.PI*2/8*k,br=5+Math.random()*4;ctx2.fillStyle='rgba(0,229,196,'+(0.12+Math.random()*0.35)+')';ctx2.beginPath();ctx2.arc(x+Math.cos(a)*br,y+Math.sin(a)*br,2.5,0,Math.PI*2);ctx2.fill()}
+        if(vd){ctx2.fillStyle='rgba(239,68,68,.5)';ctx2.beginPath();ctx2.arc(x,y,5,0,Math.PI*2);ctx2.fill()}
+      });
+      ctx2.fillStyle='rgba(0,229,196,.65)';ctx2.font='8px monospace';ctx2.fillText(pair[1],4,12);
+      ctx2.fillStyle='rgba(245,158,11,.7)';ctx2.font='7px monospace';ctx2.fillText('IPC-7095 Void Analizi',4,142);
+    });
+  },80);
+}
+function addXR(){
+  xrRows.push({ref:'U'+Math.floor(Math.random()*50+1),pn:'ART'+Math.floor(Math.random()*99999),sn:'7847$TOP$0'+(xrRows.length+1)});
+  var t=document.getElementById('xr-tbl');if(!t)return;
+  t.innerHTML=xrRows.map(function(r){return '<tr><td class="mono" style="font-size:9px">'+r.ref+'</td><td class="mono tc" style="font-size:9px">'+r.pn+'</td><td class="mono" style="font-size:9px">'+r.sn+'</td><td style="font-size:10px">AOI-01</td><td><span class="b bgreen">OK</span></td></tr>'}).join('');
+  sn('s','X-Ray','Kayit eklendi');
+}
+
+// === KAPLAMA ===
+function rKaplama(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Yikama &amp; Kaplama</em></div><div class="pt">Yikama &amp; Kaplama Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="g2">';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">w</div>Yikama Parametreleri (IPC-CH-65)</div>';
+  h+='<div class="fr3"><div class="fg"><label class="fl">Cleaning Time (sn)</label><input type="number" class="fc" value="180"></div>';
+  h+='<div class="fg"><label class="fl">Rising Time (sn)</label><input type="number" class="fc" value="120"></div>';
+  h+='<div class="fg"><label class="fl">DI-Rising Time (sn)</label><input type="number" class="fc" value="90"></div></div>';
+  h+='<div class="fg"><label class="fl">Drying Time (sn)</label><input type="number" class="fc" value="240"></div>';
+  h+='<div class="fg"><label class="fl">Program Adi</label><input class="fc" value="PROG_GEZ_WASH_v2"></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Yikama\',\'Proses kaydi tamamlandi\')">Yikama Kaydet</button></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">c</div>Kaplama Parametreleri</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Kaplama Parca No</label><input class="fc" value="ART0089234 - Solvay Hysol"></div>';
+  h+='<div class="fg"><label class="fl">Inceltic (opsiyonel)</label><input class="fc" placeholder="ART..."></div></div>';
+  h+='<div class="fg"><label class="fl">Kaplama Yontemi</label><div style="display:flex;gap:4px"><span class="b bgreen" style="cursor:pointer;padding:4px 12px">Manuel</span><span class="b bgray" style="cursor:pointer;padding:4px 12px">Makine</span></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Program Adi (TOP)</label><input class="fc" value="COAT_GEZ_TOP_v1"></div><div class="fg"><label class="fl">Program Adi (BOT)</label><input class="fc" placeholder="(opsiyonel)"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Yogunluk (cP)</label><input type="number" class="fc" value="420"></div><div class="fg"><label class="fl">Kalinlik (um)</label><input type="number" class="fc" value="50"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Tolerans Alt (um)</label><input type="number" class="fc" value="30"></div><div class="fg"><label class="fl">Tolerans Ust (um)</label><input type="number" class="fc" value="75"></div></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Kaplama\',\'Proses kaydi tamamlandi\')">Kaplama Kaydet</button></div></div>';
+  document.getElementById('kaplama-c').innerHTML=h;
+}
+
+// === YASLANDIRMA ===
+function rYas(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Yaslandirma</em></div><div class="pt">Yaslandirma (Burn-In) Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="g2 mb2"><div class="card">'+ortakHtml('yo')+'</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">y</div>Yaslandirma Parametreleri</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Kabin Sicakligi (C)</label><input type="number" class="fc" value="70"></div><div class="fg"><label class="fl">Test Suresi (saat)</label><input type="number" class="fc" value="48"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Voltaj (V)</label><input type="number" class="fc" value="5.0" step="0.1"></div><div class="fg"><label class="fl">Akim (A)</label><input type="number" class="fc" value="2.4" step="0.1"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Burn-In Kabini</label><select class="fc"><option>Burn-In Kabini 1</option><option>Burn-In Kabini 2</option></select></div><div class="fg"><label class="fl">Program Adi</label><input class="fc" value="AGING_GEZ_70C_48H"></div></div>';
+  h+='<div class="fg"><label class="fl">Baslangic Tarihi/Saati</label><input type="datetime-local" class="fc" value="2025-04-14T10:00"></div></div></div>';
+  h+='<div class="g3 mb2">';
+  h+='<div class="card" style="text-align:center"><div style="font-size:9px;color:var(--c3);font-family:JetBrains Mono,monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Kalan Sure</div>';
+  h+='<div style="font-size:32px;font-weight:700;font-family:JetBrains Mono,monospace;color:var(--amber);padding:8px 0" id="ag-t">46:32:18</div>';
+  h+='<div style="font-size:9.5px;color:var(--c3)">48 saatlik test - %3 tamamlandi</div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">m</div>Anlik Olcumler</div>';
+  h+='<div class="dr"><span class="dk">Kabin Sicakligi</span><span class="dv2 ta" id="ag-tmp">70.2C</span></div>';
+  h+='<div class="dr"><span class="dk">Voltaj</span><span class="dv2" id="ag-v">5.02V</span></div>';
+  h+='<div class="dr"><span class="dk">Akim</span><span class="dv2" id="ag-a">2.38A</span></div>';
+  h+='<div class="dr"><span class="dk">Guc</span><span class="dv2" id="ag-p">11.9W</span></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">s</div>Test Durumu</div>';
+  h+='<div class="dr"><span class="dk">Durum</span><span class="b bgreen">Calisiyor</span></div>';
+  h+='<div class="dr"><span class="dk">Tamamlanan</span><span class="dv2 ta">%3</span></div>';
+  h+='<div class="dr"><span class="dk">Ariza Adedi</span><span class="dv2 tg">0</span></div>';
+  h+='<div class="dr"><span class="dk">Kart Sayisi</span><span class="dv2">20 adet</span></div></div></div>';
+  h+='<div class="g2"><div class="card"><div class="ct mb2"><div class="ci">&#9646;</div>Saatlik Kayit Tablosu</div>';
+  h+='<div class="tw tsh"><table><thead><tr><th>Saat</th><th>Kabin Sic.</th><th>Voltaj</th><th>Akim</th><th>Guc</th><th>Durum</th></tr></thead><tbody>';
+  for(var i=0;i<6;i++){
+    var nd=new Date(Date.now()-i*3600000*1.2),tmp=(70+Math.random()*.6-.3).toFixed(1),vv=(5+Math.random()*.04-.02).toFixed(2),aa=(2.4+Math.random()*.1-.05).toFixed(2),pp=(parseFloat(vv)*parseFloat(aa)).toFixed(1);
+    h+='<tr><td class="mono" style="font-size:9px">'+String(nd.getHours()).padStart(2,'0')+':'+String(nd.getMinutes()).padStart(2,'0')+'</td><td class="mono ta">'+tmp+'C</td><td class="mono">'+vv+'V</td><td class="mono">'+aa+'A</td><td class="mono">'+pp+'W</td><td><span class="b bgreen">Normal</span></td></tr>';
+  }
+  h+='</tbody></table></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">z</div>Test Tamamlama</div>';
+  h+='<div class="fg"><label class="fl">Test Sonucu</label><select class="fc"><option>Devam Ediyor</option><option>Gecti - Normal</option><option>Gecti - Uyariyla</option><option>Kaldi - Hata</option></select></div>';
+  h+='<div class="fg"><label class="fl">Gozlemler</label><textarea class="fc" rows="3" placeholder="Yaslandirma surecinde gozlemlenenler..."></textarea></div>';
+  h+='<div class="fg"><label class="fl">Ariza Adedi</label><input type="number" class="fc" value="0"></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Yaslandirma\',\'Proses kaydi tamamlandi\')">Kaydet</button></div></div>';
+  document.getElementById('yaslandirma-c').innerHTML=h;
+  if(!agInt)agInt=setInterval(function(){
+    agSecs=Math.max(0,agSecs-1);
+    var t=document.getElementById('ag-t');
+    if(t)t.textContent=String(Math.floor(agSecs/3600)).padStart(2,'0')+':'+String(Math.floor((agSecs%3600)/60)).padStart(2,'0')+':'+String(agSecs%60).padStart(2,'0');
+    var tp=document.getElementById('ag-tmp');if(tp)tp.textContent=(70+Math.random()*.6-.3).toFixed(1)+'C';
+  },1000);
+}
+
+// === DEPANELLEME ===
+function rDep(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Depanelleme</em></div><div class="pt">Depanelleme Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="g2 mb2"><div class="card">'+ortakHtml('do')+'</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">q</div>Depanelleme Parametreleri</div>';
+  h+='<div class="fg"><label class="fl">Kesim Yontemi</label><select class="fc" id="dep-y" onchange="updDep()"><option value="router">Router (Freze - LPKF)</option><option value="laser">Lazer Kesim</option><option value="manual">Manuel (Kirma)</option><option value="pizza">Pizza-Cutter</option></select></div>';
+  h+='<div id="dep-p"></div>';
+  h+='<div class="fg"><label class="fl">Makine</label><select class="fc"><option>Router-01 (LPKF ProtoMat S63)</option><option>Router-02</option></select></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Islenen Panel Adedi</label><input type="number" class="fc" value="6"></div><div class="fg"><label class="fl">Hatali Panel Adedi</label><input type="number" class="fc" value="0"></div></div>';
+  h+='<div class="fg"><label class="fl">Uretim Notu</label><textarea class="fc" rows="2"></textarea></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Depanelleme\',\'Proses kaydi tamamlandi\')">Kaydet</button></div></div>';
+  h+='<div class="card"><div class="ch"><div class="ct"><div class="ci">&#9646;</div>Kayit Tablosu</div><div class="bgr"><button class="btn btp sm" onclick="addDep()">+ Kayit Ekle</button><button class="btn bts sm" onclick="sn(\'s\',\'Excel\',\'Indirildi\')">&#8595; Excel</button></div></div>';
+  h+='<div class="tw tsh"><table><thead><tr><th>Sira</th><th>Panel S/N</th><th>Yontem</th><th>Param.</th><th>Hatali</th><th>Saat</th></tr></thead><tbody id="dep-tbl"></tbody></table></div></div>';
+  document.getElementById('depanelleme-c').innerHTML=h;
+  updDep();
+}
+function updDep(){
+  var y=document.getElementById('dep-y');if(!y)return;
+  var dp=document.getElementById('dep-p');if(!dp)return;
+  var p={
+    router:'<div class="fr"><div class="fg"><label class="fl">Kesim Hizi (mm/dk)</label><input type="number" class="fc" value="400"></div><div class="fg"><label class="fl">Kesim Derinligi (mm)</label><input type="number" class="fc" value="1.6" step="0.1"></div></div><div class="fr"><div class="fg"><label class="fl">Freze Capi (mm)</label><input type="number" class="fc" value="2.0"></div><div class="fg"><label class="fl">Devir (RPM)</label><input type="number" class="fc" value="20000"></div></div>',
+    laser:'<div class="fr"><div class="fg"><label class="fl">Lazer Gucu (%)</label><input type="number" class="fc" value="80"></div><div class="fg"><label class="fl">Kesim Hizi (mm/sn)</label><input type="number" class="fc" value="50"></div></div>',
+    manual:'<div class="fg"><label class="fl">Manuel Kirma Notu</label><textarea class="fc" rows="2" placeholder="Gozlemler..."></textarea></div>',
+    pizza:'<div class="fr"><div class="fg"><label class="fl">Pizza Cutter Hizi (mm/dk)</label><input type="number" class="fc" value="200"></div><div class="fg"><label class="fl">Baski Kuvveti (N)</label><input type="number" class="fc" value="15"></div></div>'
+  };
+  dp.innerHTML=p[y.value]||'';
+}
+function addDep(){
+  depRows.push({no:depRows.length+1,sn:'7847$P'+(depRows.length+1),y:'Router',p:'400mm/dk',h:'0',s:'09:'+String(22+depRows.length).padStart(2,'0')});
+  var t=document.getElementById('dep-tbl');
+  if(t)t.innerHTML=depRows.map(function(r){return '<tr><td class="mono">'+r.no+'</td><td class="mono" style="font-size:9px">'+r.sn+'</td><td>'+r.y+'</td><td style="font-size:9.5px;color:var(--c2)">'+r.p+'</td><td><span class="b bgreen">'+r.h+'</span></td><td class="mono" style="font-size:9px">'+r.s+'</td></tr>'}).join('');
+  sn('s','Depanelleme','Kayit eklendi');
+}
+
+// === TEST ===
+function rTest(){
+  var h='<div class="ph"><div><div class="bc">NexGen / İç İmalat / <em>Elektriksel Test</em></div><div class="pt">Elektriksel Test Proses Detayi</div></div><button class="btn bts sm" onclick="gp(\'ic-imalat\')">&#8592; Geri</button></div>';
+  h+='<div class="g2 mb2"><div class="card">'+ortakHtml('to')+'</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">e</div>Test Yapilandirmasi</div>';
+  h+='<div class="fg"><label class="fl">Test Turu</label><select class="fc" id="tt" onchange="updTT()"><option value="ict">ICT (In-Circuit Test)</option><option value="fct">FCT (Fonksiyonel Test)</option><option value="both">ICT + FCT</option><option value="flying">Flying Probe</option></select></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Test Fixture No</label><input class="fc" id="fix-no" value="FIX-GEZ-230001-ICT-v2"></div><div class="fg"><label class="fl">Test Program Adi</label><input class="fc" value="TEST_GEZ_230001_v3"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Test Voltaji (V)</label><input type="number" class="fc" value="5.0" step="0.1"></div><div class="fg"><label class="fl">Sure/Kart (sn)</label><input type="number" class="fc" value="45"></div></div></div></div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">r</div>Sonuc Girisi</div>';
+  h+='<div class="fg"><label class="fl">PCB Seri No</label><input class="fc" id="test-sn" placeholder="7847$TOP$001"></div>';
+  h+='<div class="fg"><label class="fl">Test Sonucu</label><div style="display:flex;gap:5px">';
+  h+='<button class="b bgreen" style="cursor:pointer;padding:5px 16px" id="t-p" onclick="setTR(\'pass\')">&#10003; GECTI</button>';
+  h+='<button class="b bgray" style="cursor:pointer;padding:5px 16px" id="t-f" onclick="setTR(\'fail\')">&#10005; KALDI</button></div></div>';
+  h+='<div id="t-fail-f" style="display:none"><div class="fg mt1"><label class="fl">Hata Kodu</label><input class="fc" placeholder="ERR-001..."></div>';
+  h+='<div class="fg"><label class="fl">Aksiyon</label><select class="fc"><option>Rework Gerekli</option><option>Hurda</option><option>Tekrar Test</option></select></div></div>';
+  h+='<button class="btn btp sm mt1" onclick="addTest()">+ Test Sonucu Ekle</button></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">s</div>Oturum Istatistikleri</div>';
+  h+='<div class="g2 mb2"><div class="sc g"><div class="sl">Toplam Test</div><div class="sv" id="t-tot">0</div></div>';
+  h+='<div class="sc g"><div class="sl">Gecen (FPY)</div><div class="sv tg" id="t-p2">0</div></div>';
+  h+='<div class="sc r"><div class="sl">Kalan</div><div class="sv" style="color:var(--red)" id="t-f2">0</div></div>';
+  h+='<div class="sc b"><div class="sl">FPY %</div><div class="sv" id="t-fpy">-</div></div></div>';
+  h+='<canvas id="t-cht" height="90"></canvas></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9646;</div>Test Kayitlari</div><div class="tw tsh"><table><thead><tr><th>PCB S/N</th><th>Test Turu</th><th>Fixture</th><th>Sonuc</th><th>Sure</th><th>Saat</th><th>Operator</th></tr></thead><tbody id="t-tbl"></tbody></table></div></div>';
+  document.getElementById('test-c').innerHTML=h;
+  renderTCht();
+}
+function updTT(){
+  var v=document.getElementById('tt');var f=document.getElementById('fix-no');if(!v||!f)return;
+  var m={ict:'FIX-GEZ-230001-ICT-v2',fct:'FIX-GEZ-230001-FCT-v1',both:'FIX-GEZ-230001-ICT+FCT',flying:'N/A (Flying Probe)'};
+  f.value=m[v.value]||'';
+}
+function setTR(r){
+  var p=document.getElementById('t-p'),f=document.getElementById('t-f');
+  if(p)p.className='b '+(r==='pass'?'bgreen':'bgray');
+  if(f)f.className='b '+(r==='fail'?'bred':'bgray');
+  if(p)p.style.cssText='cursor:pointer;padding:5px 16px';
+  if(f)f.style.cssText='cursor:pointer;padding:5px 16px';
+  var ff=document.getElementById('t-fail-f');if(ff)ff.style.display=r==='fail'?'block':'none';
+}
+function addTest(){
+  var sne=document.getElementById('test-sn');
+  var isPas=document.getElementById('t-p').classList.contains('bgreen');
+  testRows.push({sn:sne?sne.value||'7847$TOP$0'+(testRows.length+1):'',res:isPas,saat:'09:'+String(22+testRows.length).padStart(2,'0')});
+  if(isPas)tPass++;else tFail++;
+  if(sne)sne.value='';
+  var t=document.getElementById('t-tbl');
+  if(t)t.innerHTML=testRows.map(function(r){return '<tr class="'+(r.res?'trg':'trr')+'"><td class="mono" style="font-size:9px">'+r.sn+'</td><td>ICT</td><td class="mono" style="font-size:9px">FIX-GEZ-ICT-v2</td><td>'+(r.res?'<span class="b bgreen">GECTI</span>':'<span class="b bred">KALDI</span>')+'</td><td class="mono" style="font-size:9px">45s</td><td class="mono" style="font-size:9px">'+r.saat+'</td><td style="font-size:10px;color:var(--c2)">Test Op.</td></tr>'}).join('');
+  var tot=tPass+tFail;
+  ['t-tot','t-p2','t-f2'].forEach(function(id,i){var e=document.getElementById(id);if(e)e.textContent=[tot,tPass,tFail][i]});
+  var fpy=document.getElementById('t-fpy');if(fpy)fpy.textContent=tot>0?Math.round(tPass/tot*100)+'%':'-';
+  renderTCht();
+  sn(isPas?'s':'e','Test','PCB '+(isPas?'GECTI':'KALDI'));
+}
+function renderTCht(){
+  var ctx=document.getElementById('t-cht');if(!ctx)return;
+  if(tCht)tCht.destroy();
+  tCht=new Chart(ctx,{type:'doughnut',data:{labels:['Gecti','Kaldi'],datasets:[{data:[tPass||1,tFail],backgroundColor:['rgba(34,197,94,.35)','rgba(239,68,68,.25)'],borderColor:['var(--green)','var(--red)'],borderWidth:1.5}]},options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{labels:{color:'#8892a4',font:{size:9},boxWidth:8}}}}});
+}
+
+// === KALITE ===
+function rKalite(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Kalite Kontrol</em></div><div class="pt">Kalite Kontrol &amp; Muayene</div></div><button class="btn bts sm" onclick="sn(\'s\',\'Rapor\',\'Indirildi\')">&#8595; Rapor</button></div>';
+  h+='<div class="g4 mb2"><div class="sc g"><div class="sl">Gecen Kontrol</div><div class="sv">142</div><div class="sn up">%98.6</div></div>';
+  h+='<div class="sc r"><div class="sl">Ret/Hurda</div><div class="sv">2</div><div class="sn dn">Bu hafta</div></div>';
+  h+='<div class="sc a"><div class="sl">Rework</div><div class="sv">19</div><div class="sn wn">3 devam</div></div>';
+  h+='<div class="sc b"><div class="sl">FPY %</div><div class="sv">94.2%</div></div></div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">v</div>Ilk Urun Kontrol Kaydi</div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">ISF</label><select class="fc"><option>7847-21582601 - GEZKIY</option><option>7849-21582603 - Q PROJESI</option></select></div>';
+  h+='<div class="fg"><label class="fl">Kontrol Tarihi</label><input type="datetime-local" class="fc" value="2025-04-14T09:00"></div></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Kontrol Eden</label><input class="fc" value="Kalite Muh. Ayse K."></div>';
+  h+='<div class="fg"><label class="fl">Sonuc</label><select class="fc"><option>Gecti - Uretim Onayi</option><option>Kaldi - Rework</option><option>Red - Hurda</option></select></div></div>';
+  h+='<div class="fg"><label class="fl">Aciklama</label><textarea class="fc" rows="2" placeholder="Gozlem ve hata detaylari..."></textarea></div>';
+  h+='<div class="fg"><label class="fl">Kontrol Fotografı</label><input type="file" class="fc" accept="image/*"></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'Kalite\',\'Ilk urun kontrol kaydi tamamlandi\')">Kaydet</button></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">g</div>14 Gunluk Hata Trendi</div>';
+  h+='<div id="qhm" style="display:grid;grid-template-columns:repeat(14,1fr);gap:2px;margin-bottom:8px"></div>';
+  h+='<canvas id="kal-c" height="95"></canvas></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9646;</div>Ret &amp; Rework Kayitlari</div><div class="tw tsh"><table><thead><tr><th>Tarih</th><th>ISF</th><th>Proje</th><th>Hata Tipi</th><th>Tespit</th><th>Adet</th><th>Aksiyon</th><th>Sorumlu</th><th>Durum</th></tr></thead><tbody>';
+  kalRows.forEach(function(r){
+    h+='<tr><td class="mono" style="font-size:9px">'+r.tarih+'</td><td class="mono tc" style="font-size:9px">'+r.isf+'</td><td>'+r.proj+'</td><td>'+r.hata+'</td>';
+    h+='<td><span class="b bamber">'+r.tespit+'</span></td><td class="mono" style="text-align:center">'+r.adet+'</td>';
+    h+='<td>'+(r.aksiyon==='Scrap'?'<span class="b bred">Hurda</span>':'<span class="b bamber">Rework</span>')+'</td>';
+    h+='<td style="font-size:10px">'+r.sor+'</td><td>'+sb(r.durum)+'</td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('kalite-c').innerHTML=h;
+  setTimeout(function(){
+    var qhm=document.getElementById('qhm');
+    if(qhm)qhm.innerHTML=Array.from({length:14},function(){return Math.random()}).map(function(v,i){return '<div style="aspect-ratio:1;background:'+(v<.12?'rgba(34,197,94,.5)':v<.35?'rgba(245,158,11,.55)':'rgba(239,68,68,.55)')+';border-radius:2px;cursor:pointer" title="'+(i+1)+' Nis - '+(v*3).toFixed(1)+'% hata"></div>'}).join('');
+    var ctx=document.getElementById('kal-c');
+    if(ctx){if(kalCht)kalCht.destroy();
+      var days=Array.from({length:14},function(_,i){return (i+1)+' Nis'});
+      kalCht=new Chart(ctx,{type:'line',data:{labels:days,datasets:[{label:'Hata %',data:days.map(function(){return+(Math.random()*2.5).toFixed(2)}),borderColor:'var(--red)',backgroundColor:'rgba(239,68,68,.07)',tension:.4,pointRadius:2,borderWidth:1.5,fill:true},{label:'Hedef 2%',data:Array(14).fill(2),borderColor:'rgba(245,158,11,.5)',borderWidth:1,borderDash:[4,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:9},boxWidth:8}}},scales:{x:{ticks:{color:'#556070',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}},y:{min:0,max:4,ticks:{color:'#8892a4',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}}}}}); 
+    }
+  },50);
+}
+
+// === KPI ===
+function rKPI(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>KPI Analiz</em></div><div class="pt">2025 KPI Gostergeleri</div></div><button class="btn bts sm" onclick="sn(\'s\',\'KPI\',\'Indirildi\')">&#8595; Excel</button></div>';
+  h+='<div class="al ali" style="font-size:9.5px">i Teslimat=[1-(G-P)/P]x100 | Rework=(Rework/Komp.)x100 | Hurda=(Ret/Uretim)x100</div>';
+  h+='<div class="g3 mb2">';
+  h+='<div class="sc a"><div class="sl">Zamaninda Teslimat</div><div class="sv ta">73.6%</div><div class="sn wn">Hedef: &gt;=80% !</div><div class="pb mt1"><div class="pf pfa" style="width:73.6%"></div></div></div>';
+  h+='<div class="sc g"><div class="sl">Rework Orani</div><div class="sv tg">0.22%</div><div class="sn up">Hedef: &lt;=0.5%</div></div>';
+  h+='<div class="sc g"><div class="sl">Hurda Orani</div><div class="sv tg">0.55%</div><div class="sn up">Hedef: &lt;=2%</div></div></div>';
+  h+='<div class="card mb2"><div class="ct mb2"><div class="ci">g</div>Aylik KPI Trend Grafigi</div><canvas id="kpi-cht" height="165"></canvas></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9646;</div>Detay Hesaplama Tablosu</div><div class="tw tsh"><table><thead><tr><th>Ay</th><th>Proje</th><th>Plan(h)</th><th>Gercek(h)</th><th>Teslimat%</th><th>Komp.</th><th>Rework</th><th>Rework%</th><th>Ret</th><th>Hurda%</th></tr></thead><tbody>';
+  kpiRows.forEach(function(r){
+    var t=(1-(r.gercek-r.plan)/r.plan)*100,rw=(r.rework/r.komp)*100,hh=r.ret>0?(r.ret/r.adet)*100:0;
+    h+='<tr><td class="mono">'+r.ay+'</td><td>'+r.proj+'</td><td class="mono">'+r.plan+'h</td><td class="mono">'+r.gercek+'h</td>';
+    h+='<td class="mono" style="color:'+(t>=80?'var(--green)':'var(--red)')+'">'+t.toFixed(1)+'%</td>';
+    h+='<td class="mono">'+r.komp.toLocaleString()+'</td><td class="mono">'+r.rework+'</td>';
+    h+='<td class="mono" style="color:'+(rw<=.5?'var(--green)':'var(--amber)')+'">'+rw.toFixed(2)+'%</td>';
+    h+='<td class="mono">'+r.ret+'</td><td class="mono tg">'+hh.toFixed(3)+'%</td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('kpi-c').innerHTML=h;
+  setTimeout(function(){
+    var ctx=document.getElementById('kpi-cht');
+    if(ctx){if(kpiCht)kpiCht.destroy();kpiCht=new Chart(ctx,{type:'bar',data:{labels:['Ocak','Subat','Mart','Nisan'],datasets:[{label:'Teslimat%',data:[73.6,98.1,85.2,78.4],backgroundColor:'rgba(0,229,196,.22)',borderColor:'var(--teal)',borderWidth:1.5,yAxisID:'y'},{label:'Rework%',data:[.78,.22,.35,.28],type:'line',borderColor:'var(--amber)',tension:.4,pointRadius:3,borderWidth:1.5,fill:false,yAxisID:'y2'},{label:'Hurda%',data:[0,.55,.2,.1],type:'line',borderColor:'var(--red)',tension:.4,pointRadius:3,borderWidth:1.5,fill:false,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892a4',font:{size:9},boxWidth:9}}},scales:{x:{ticks:{color:'#556070',font:{size:9}},grid:{color:'rgba(255,255,255,.03)'}},y:{position:'left',min:0,max:110,ticks:{color:'#8892a4',font:{size:8}},grid:{color:'rgba(255,255,255,.03)'}},y2:{position:'right',min:0,max:2,ticks:{color:'#f59e0b',font:{size:8}},grid:{display:false}}}}});}
+  },50);
+}
+
+// === PLANLAMA ===
+function rPlan(){
+  var total=68;
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Planlama</em></div><div class="pt">Uretim Plani &amp; Gantt</div></div>';
+  h+='<div class="bgr"><button class="btn bts sm">+ Bakim</button><button class="btn btp sm">+ Plan</button></div></div>';
+  h+='<div class="g4 mb2"><div class="sc b"><div class="sl">Toplam Proje</div><div class="sv">5</div></div>';
+  h+='<div class="sc g"><div class="sl">Tamamlanan</div><div class="sv">2</div><div class="sn up">%100</div></div>';
+  h+='<div class="sc t"><div class="sl">Devam Eden</div><div class="sv">2</div></div>';
+  h+='<div class="sc a"><div class="sl">Bekleyen</div><div class="sv">1</div></div></div>';
+  h+='<div class="card mb2"><div class="ch"><div class="ct"><div class="ci">g</div>Gantt Semasi - 2025 Q1/Q2</div>';
+  h+='<div style="display:flex;gap:8px;font-size:8.5px;color:var(--c3)">';
+  [['var(--teal)','Tamam'],['var(--amber)','Devam'],['rgba(239,68,68,.5)','Bakim']].forEach(function(p){h+='<span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;background:'+p[0]+';border-radius:2px;display:inline-block"></span>'+p[1]+'</span>'});
+  h+='</div></div>';
+  ganttData.forEach(function(d){
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+    h+='<div style="width:100px;font-size:9.5px;color:var(--c2);text-align:right;font-family:JetBrains Mono,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+d.lbl+'</div>';
+    h+='<div style="flex:1;background:var(--bg4);border-radius:4px;height:20px;position:relative;overflow:hidden">';
+    h+='<div style="height:100%;margin-left:'+(d.start/total*100)+'%;width:'+(d.dur/total*100)+'%;background:'+d.col+';border-radius:4px;display:flex;align-items:center;padding:0 6px;font-size:8px;font-weight:700;font-family:JetBrains Mono,monospace;color:'+(d.col.includes('239')?'var(--c1)':'var(--bg)')+';cursor:pointer" onclick="sn(\'i\',\'Proje\',\''+d.lbl+'\')">'+(d.dur>6?d.lbl:'')+'</div></div></div>';
+  });
+  h+='</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">j</div>Planli Bakim &amp; Dusler</div><div class="tw"><table><thead><tr><th>Tarih</th><th>Ekipman</th><th>Tur</th><th>Sure</th><th>Sorumlu</th><th>Durum</th></tr></thead><tbody>';
+  h+='<tr><td class="mono" style="font-size:9px">18.04.2025</td><td>SMT Hat 1 - Dizgi</td><td><span class="b bblue">Planli Bakim</span></td><td>4h</td><td>Teknik Servis</td><td><span class="b bamber">Planli</span></td></tr>';
+  h+='<tr><td class="mono" style="font-size:9px">25.04.2025</td><td>Reflow Firini</td><td><span class="b bpurple">Kalibrasyon</span></td><td>2h</td><td>Metot Muh.</td><td><span class="b bamber">Planli</span></td></tr>';
+  h+='<tr><td class="mono" style="font-size:9px">07.04.2025</td><td>AOI Cihazi</td><td><span class="b bred">Ariza</span></td><td>6h</td><td>Teknik Servis</td><td><span class="b bgreen">Tamamlandi</span></td></tr>';
+  h+='</tbody></table></div></div>';
+  document.getElementById('planlama-c').innerHTML=h;
+}
+
+// === ALARMLAR ===
+function rAlarmlar(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Alarmlar</em></div><div class="pt">Alarm Merkezi</div></div><button class="btn bts sm" onclick="sn(\'s\',\'Alarmlar\',\'Tumu okundu\')">Tumumunu Okundu</button></div>';
+  h+='<div class="g2 mb2"><div class="card"><div class="ct mb2"><div class="ci">!</div>Aktif Alarmlar (2)</div>';
+  [{msg:'Elekt. Dizgi B1 - Sicaklik Alarmi',val:'28.4C > 26C limit asildi',time:'09:14',sev:'r'},{msg:'Kurutma Dolabi 1 - MSL Uyarisi',val:'BGA IC - 14h gecti (max 168h)',time:'08:30',sev:'a'}].forEach(function(a){
+    h+='<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--br2)">';
+    h+='<div style="width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;background:'+(a.sev==='r'?'var(--red)':'var(--amber)')+'"></div>';
+    h+='<div style="font-size:9px;color:var(--c3);font-family:JetBrains Mono,monospace;min-width:36px">'+a.time+'</div>';
+    h+='<div style="flex:1"><div style="font-size:11.5px">'+a.msg+'</div><div style="font-size:10px;color:var(--c2)">'+a.val+'</div></div>';
+    h+='<button class="btn bts sm" onclick="sn(\'s\',\'Alarm\',\'Kapatildi\');this.closest(\'div\').parentElement.style.opacity=\'.4\'">Kapat</button></div>';
+  });
+  h+='</div><div class="card"><div class="ct mb2"><div class="ci">@</div>E-posta Bildirim Gecmisi</div>';
+  [{to:'mehmet.y@altinay.com',konu:'ALARM: Sicaklik Limiti Asildi',time:'09:14'},{to:'ayse.k@altinay.com',konu:'ALARM: Sicaklik Limiti Asildi',time:'09:14'},{to:'fatma.t@altinay.com',konu:'UYARI: MSL Kurutma Suresi',time:'08:30'},{to:'mehmet.y@altinay.com',konu:'UYARI: MSL Kurutma Suresi',time:'08:30'}].forEach(function(e){
+    h+='<div style="display:flex;gap:7px;padding:6px 0;border-bottom:1px solid var(--br2)">';
+    h+='<div style="width:6px;height:6px;border-radius:50%;margin-top:3px;background:var(--green);flex-shrink:0"></div>';
+    h+='<div style="font-size:9px;color:var(--c3);font-family:JetBrains Mono,monospace">'+e.time+'</div>';
+    h+='<div><div style="font-size:11px">'+e.to+'</div><div style="font-size:9px;color:var(--c2)">'+e.konu+'</div></div></div>';
+  });
+  h+='</div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">&#9881;</div>Cihaz Bazli Alarm Limitleri &amp; Sorumlular</div><div class="tw"><table><thead><tr><th>Cihaz</th><th>Sic. Min</th><th>Sic. Max</th><th>Nem Min</th><th>Nem Max</th><th>Sorumlu 1</th><th>Sorumlu 2</th><th></th></tr></thead><tbody>';
+  sensors.forEach(function(s){
+    h+='<tr><td style="font-size:11px">'+s.name+'</td>';
+    h+='<td><input type="number" class="fc" value="'+s.minT+'" style="width:48px;padding:2px 6px;font-size:9px"></td>';
+    h+='<td><input type="number" class="fc" value="'+s.maxT+'" style="width:48px;padding:2px 6px;font-size:9px"></td>';
+    h+='<td><input type="number" class="fc" value="'+s.minH+'" style="width:48px;padding:2px 6px;font-size:9px"></td>';
+    h+='<td><input type="number" class="fc" value="'+s.maxH+'" style="width:48px;padding:2px 6px;font-size:9px"></td>';
+    h+='<td style="font-size:10px">'+s.resp[0]+'</td><td style="font-size:10px">'+s.resp[1]+'</td>';
+    h+='<td><button class="btn bts sm" style="font-size:9px" onclick="sn(\'s\',\'Limit\',\''+s.name+' guncellendi\')">Kaydet</button></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('alarmlar-c').innerHTML=h;
+}
+
+// === MAKINE ===
+function rMakine(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Makine Kayitlari</em></div><div class="pt">Makine Kayitlari - 2. Faz</div></div></div>';
+  h+='<div class="al ali">i 2. Faz kapsaminda - IT koordinasyonu gereklidir.</div>';
+  h+='<div class="g3 mb2"><div class="sc t"><div class="sl">Inline</div><div class="sv">6</div><div class="sn">Server kayitli</div></div>';
+  h+='<div class="sc a"><div class="sl">Offline</div><div class="sv">4</div><div class="sn wn">Lokal kayit</div></div>';
+  h+='<div class="sc g"><div class="sl">AOI/Inspection</div><div class="sv">2</div><div class="sn up">Entegrasyon planlandı</div></div></div>';
+  h+='<div class="card"><div class="ct mb2">Makine Listesi</div><div class="tw"><table><thead><tr><th>Makine Adi</th><th>Tip</th><th>Seri No</th><th>Kayit</th><th>Son Kal.</th><th>Durum</th></tr></thead><tbody>';
+  [['Dizgi (SMT-01)','Inline','SMT-ASM-2024-001','Server','15.03.2025','Aktif'],['Krem Lehim (SP-01)','Inline','SP-DEK-2023-087','Server','10.03.2025','Aktif'],['AOI (AOI-01)','Inline','AOI-KOH-2022-034','Server','07.04.2025','Aktif'],['Reflow (RF-01)','Inline','RF-HEL-2021-015','Server','01.04.2025','Aktif'],['Manuel Lehim (HR600)','Offline','HR600-20116','Lokal','20.03.2025','Aktif'],['X-Ray Cihazi','Offline','XRAY-SEI-2022-009','Lokal','05.03.2025','Bakim Gerekli'],['Router (Dep-01)','Offline','RTR-LPKF-2020-003','Lokal','12.03.2025','Aktif'],['Burn-In Kab. 1','Offline','BRN-2019-001','Lokal','01.03.2025','Aktif']].forEach(function(row){
+    h+='<tr><td>'+row[0]+'</td><td style="font-size:10.5px;color:var(--c2)">'+row[1]+'</td><td class="mono" style="font-size:9px">'+row[2]+'</td><td><span class="b '+(row[3]==='Server'?'bblue':'bgray')+'">'+row[3]+'</span></td><td class="mono" style="font-size:9px">'+row[4]+'</td><td><span class="b '+(row[5]==='Aktif'?'bgreen':'bamber')+'">'+row[5]+'</span></td></tr>';
+  });
+  h+='</tbody></table></div></div>';
+  document.getElementById('makine-c').innerHTML=h;
+}
+
+// === RAPORLAR ===
+function rRaporlar(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Raporlar</em></div><div class="pt">Rapor Merkezi</div></div></div>';
+  h+='<div class="g3 mb2">';
+  [['g','KPI Aylik Raporu','Teslimat, rework ve hurda KPI ozeti'],['d','Is Emri Listesi','Tum is emirleri detayli liste'],['~','Sicaklik &amp; Nem','Secilen tarihte sensor kayitlari'],['o','Kurutma Gecmisi','Dolap giris/cikis kayitlari'],['v','Kalite &amp; Ret','Ret, rework, hurda ozeti'],['e','Test Sonuclari','ICT/FCT gecer/kalir kayitlari']].forEach(function(r){
+    h+='<div class="card" style="cursor:pointer;transition:transform .18s" onmouseenter="this.style.transform=\'translateY(-2px)\'" onmouseleave="this.style.transform=\'\'"><div class="ct mb2"><div class="ci">'+r[0]+'</div>'+r[1]+'</div>';
+    h+='<div style="font-size:10.5px;color:var(--c2);margin-bottom:11px">'+r[2]+'</div>';
+    h+='<div style="display:flex;gap:5px"><button class="btn btp sm" onclick="sn(\'s\',\'Rapor\',\''+r[1]+' Excel olarak indirildi\')">&#8595; Excel</button>';
+    h+='<button class="btn bts sm" onclick="sn(\'s\',\'Rapor\',\'PDF olusturuldu\')">&#8595; PDF</button></div></div>';
+  });
+  h+='</div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">o</div>Ozel Tarih Araligi Raporu</div>';
+  h+='<div class="fr3"><div class="fg"><label class="fl">Rapor Turu</label><select class="fc"><option>KPI Ozet</option><option>Is Emirleri</option><option>Sicaklik &amp; Nem</option><option>Kalite</option></select></div>';
+  h+='<div class="fg"><label class="fl">Baslangic</label><input type="date" class="fc" value="2025-01-01"></div>';
+  h+='<div class="fg"><label class="fl">Bitis</label><input type="date" class="fc" value="2025-04-14"></div></div>';
+  h+='<button class="btn btp sm mt1" onclick="sn(\'s\',\'Rapor\',\'Ozel rapor indirildi\')">Rapor Olustur &amp; Indir</button></div>';
+  document.getElementById('raporlar-c').innerHTML=h;
+}
+
+// === KULLANICILAR ===
+function rUsers(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Kullanicilar</em></div><div class="pt">Kullanici Yonetimi</div></div><button class="btn btp sm" onclick="openM(\'uM\')">+ Ekle</button></div>';
+  h+='<div class="g4 mb2"><div class="sc t"><div class="sl">Toplam</div><div class="sv" id="u-t">'+users.length+'</div></div>';
+  h+='<div class="sc g"><div class="sl">Online</div><div class="sv" id="u-o">'+users.filter(function(u){return u.aktif}).length+'</div></div>';
+  h+='<div class="sc b"><div class="sl">Yonetici</div><div class="sv">'+users.filter(function(u){return u.rol.includes('Yonetici')}).length+'</div></div>';
+  h+='<div class="sc a"><div class="sl">Operator</div><div class="sv">'+users.filter(function(u){return u.rol==='Operator'}).length+'</div></div></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">u</div>Kullanici Listesi</div><div class="tw"><table><thead><tr><th>Ad Soyad</th><th>Kullanici Adi</th><th>Rol</th><th>Bolum</th><th>E-posta</th><th>Son Giris</th><th>Durum</th><th></th></tr></thead><tbody id="u-tbl"></tbody></table></div></div>';
+  document.getElementById('kullanicilar-c').innerHTML=h;
+  renderUsers();
+}
+function renderUsers(){
+  var t=document.getElementById('u-tbl');if(!t)return;
+  t.innerHTML=users.map(function(u){
+    return '<tr><td style="font-weight:500">'+u.ad+'</td><td class="mono tc" style="font-size:9px">'+u.usr+'</td>'+
+      '<td><span class="b '+(u.rol.includes('Yonetici')?'bpurple':u.rol.includes('Kalite')?'bblue':'bgray')+'">'+u.rol+'</span></td>'+
+      '<td>'+u.bolum+'</td><td style="font-size:10px;color:var(--c2)">'+u.email+'</td><td class="mono" style="font-size:9px">'+u.giris+'</td>'+
+      '<td>'+(u.aktif?'<span class="b bgreen">Online</span>':'<span class="b bgray">Offline</span>')+'</td>'+
+      '<td><button class="btn btd sm" onclick="sn(\'w\',\'Kullanici\',\'Islem yapildi\')">Duzenle</button></td></tr>';
+  }).join('');
+}
+function addUsr(){
+  var a=document.getElementById('u-a'),u=document.getElementById('u-u');
+  users.push({ad:a?a.value:'Yeni Kullanici',usr:u?u.value:'yeni.k',rol:'Operator',bolum:'Elektronik Dizgi',email:'yeni@altinay.com',giris:'-',aktif:false});
+  if(SN['kullanicilar'])renderUsers();
+  sn('s','Kullanici','Kullanici eklendi');
+}
+
+// === AYARLAR ===
+function rAyarlar(){
+  var h='<div class="ph"><div><div class="bc">NexGen / <em>Ayarlar</em></div><div class="pt">Sistem Ayarlari</div></div></div>';
+  h+='<div class="g2"><div class="card"><div class="ct mb2"><div class="ci">~</div>Sensor &amp; API Ayarlari</div>';
+  h+='<div class="fg"><label class="fl">Kayit Araligi</label><select class="fc"><option>1 dakika (Onerilen)</option><option>5 dakika</option><option>10 dakika</option><option>30 dakika</option><option>60 dakika</option><option>120 dakika</option></select></div>';
+  h+='<div class="fg"><label class="fl">Argekip STS API Endpoint</label><input class="fc" value="https://api.argekip.com/sts/v2/data"></div>';
+  h+='<div class="fg"><label class="fl">API Key</label><input class="fc" type="password" value="sk-argekip-prod-2025-xxxxx"></div>';
+  h+='<button class="btn btp sm" onclick="sn(\'s\',\'API\',\'Ayarlar kaydedildi\')">Kaydet</button></div>';
+  h+='<div class="card"><div class="ct mb2"><div class="ci">@</div>SMTP Bildirim Ayarlari</div>';
+  h+='<div class="fg"><label class="fl">SMTP Sunucu</label><input class="fc" value="smtp.altinay.com.tr"></div>';
+  h+='<div class="fr"><div class="fg"><label class="fl">Port</label><input type="number" class="fc" value="587"></div><div class="fg"><label class="fl">Sifreleme</label><select class="fc"><option>TLS</option><option>SSL</option></select></div></div>';
+  h+='<div class="fg"><label class="fl">Alarm Gonderen</label><input class="fc" value="alarm@altinay.com.tr"></div>';
+  h+='<div style="display:flex;gap:6px"><button class="btn btp sm" onclick="sn(\'s\',\'SMTP\',\'Ayarlar kaydedildi\')">Kaydet</button><button class="btn bts sm" onclick="sn(\'s\',\'SMTP\',\'Test maili gonderildi\')">Test Et</button></div></div></div>';
+  document.getElementById('ayarlar-c').innerHTML=h;
+}
+
+// LIVE UPDATE
+function liveUpdate(){
+  sensors.forEach(function(s){
+    s.temp=+(s.temp+(Math.random()*.12-.06)).toFixed(1);
+    s.hum=+(s.hum+(Math.random()*.14-.07)).toFixed(1);
+    s.crit=s.temp>s.maxT||s.hum>s.maxH;
+  });
+  var kT=document.getElementById('kT'),kN=document.getElementById('kN');
+  if(kT)kT.innerHTML=sensors[2].temp+'<span style="font-size:10px;color:var(--c3)">C</span>';
+  if(kN)kN.innerHTML=sensors[2].hum+'<span style="font-size:10px;color:var(--c3)">%RH</span>';
+  // Gosterge paneli aciksa sadece istatistik kartlarini guncelle (tam re-render yerine)
+  if(document.getElementById('page-dash').classList.contains('on')){
+    var alarmCount=sensors.filter(function(s){return s.crit}).length;
+    // Light update: sensor mini-grid only
+    var dsg=document.querySelectorAll('#dash-c [data-sensor]');
+    // Full reDash only if alarm state changed
+    rDash();
+  }
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded',function(){
+  rDash();
+  setTimeout(function(){sn('e','Sicaklik Alarmi','Elekt. Dizgi B1: 28.4C - Ust limit asildi! E-posta gonderildi.',7000)},800);
+  setTimeout(function(){sn('w','MSL Uyarisi','Kurutma Dolabi 1: BGA IC 14h gecti - Kontrol ediniz.',5000)},2500);
+  setTimeout(function(){sn('s','NexGen Hazır','25 modul aktif - Tum proses ekranlari calisiyor!',4000)},4500);
+  setInterval(liveUpdate,3500);
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+//  NexGen AI RAPOR — Anthropic API (claude-sonnet-4-20250514)
+// ═══════════════════════════════════════════════════════════════
+
+var aiHistory = [];   // {role:'user'|'assistant', content: '...'}
+var aiReports = [];   // oluşturulan raporlar listesi
+var aiThinking = false;
+
+// Sistem prompt — NexGen verisini bağlamla gönder
+function buildSystemPrompt() {
+  return `Sen NexGen Üretim & Saha Takip Sistemi'nin yapay zeka destekli rapor asistanısın.
+
+SİSTEM VERİSİ:
+- 5 aktif iş emri: JOB001 (GEZKİY, %72, Devam), JOB002 (T PRJ, %15, Bekliyor), JOB003 (Q PRJ, %90, Kalite), JOB004 (P PRJ, %100, Tamamlandı), JOB005 (R PRJ, %35, Aktif)
+- KPI: Teslimat %73.6 (hedef ≥80%), Rework %0.22 (hedef ≤0.5%), Hurda %0.55 (hedef ≤2%), FPY %94.2
+- Sensör: Elekt. Dizgi B1 sıcaklık alarmı (28.4°C > 26°C limit)
+- Kurutma: 3 malzeme dolaptın (BGA IC 14h, MSL-3)
+- Hat durumu: Hat-1 SMT aktif, Hat-2 bekliyor, Hat-3 tamamlandı
+- Personel: 4 kullanıcı (Mehmet Y. Yönetici, Fatma D. Teknisyen, Ali K. Kalite)
+- Tarih: ${new Date().toLocaleDateString('tr-TR', {weekday:'long',day:'numeric',month:'long',year:'numeric'})}
+
+KURALLAR:
+1. Her zaman Türkçe yanıt ver.
+2. Rapor oluşturma isteklerinde mutlaka aşağıdaki JSON formatında bir rapor bloğu üret ve ardından açıklamayı ekle.
+3. Basit sorulara (ne demek, nasıl, fark nedir) JSON olmadan kısa ve net yanıt ver.
+4. Hesaplamaları göster, sayılara dayandır.
+5. Raporları tablo + istatistik + öneri formatında ver.
+
+RAPOR JSON FORMATI (rapor isteğinde bunu üret, başka bir şey ekleme formatın içine):
+<RAPOR_JSON>
+{
+  "baslik": "Rapor başlığı",
+  "ozet": "1-2 cümle özet",
+  "istatistikler": [
+    {"deger": "73.6%", "etiket": "Teslimat", "renk": "amber"},
+    {"deger": "0.22%", "etiket": "Rework", "renk": "green"},
+    {"deger": "5", "etiket": "Aktif İş", "renk": "teal"}
+  ],
+  "tablo": {
+    "basliklar": ["Proje", "Durum", "İlerleme", "Öncelik"],
+    "satirlar": [
+      ["GEZKİY", "Devam", "%72", "Yüksek"],
+      ["T PRJ", "Bekliyor", "%15", "Orta"]
+    ]
+  },
+  "oneriler": [
+    "Teslimat oranı %73.6 ile hedefin altında — JOB002 önceliklendirilmeli.",
+    "Elekt. Dizgi B1 sıcaklık alarmı aktif — HVAC kontrolü gerekiyor."
+  ],
+  "grafik_tipi": "bar"
+}
+</RAPOR_JSON>`;
+}
+
+// Hızlı sorgu şablonları
+var AI_QUICK = [
+  'Bugünkü üretim durumu nedir?',
+  'KPI özet raporu oluştur',
+  'Aktif alarmlara göre risk raporu',
+  'Geciken iş emirleri analizi',
+  'Kalite trendi son 30 gün',
+  'Makine verimliliği raporu',
+  'Rework ve hurda maliyet tahmini',
+  'Bu hafta planlanan işler',
+];
+
+// Mesaj geçmişini HTML olarak render et
+function renderAiHistory() {
+  var c = document.getElementById('ai-history');
+  if (!c) return;
+  if (aiHistory.length === 0) {
+    c.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--c3);font-size:12px;font-family:JetBrains Mono,monospace">Yukarıdan bir şablon seçin veya serbest yazın ↑</div>';
+    return;
+  }
+  c.innerHTML = aiHistory.map(function(m) {
+    if (m.role === 'user') {
+      return '<div class="ai-msg user">' +
+        '<div class="ai-avatar">👤</div>' +
+        '<div class="ai-bubble">' + escHtml(m.content) + '</div>' +
+        '</div>';
+    }
+    // AI mesajı — rapor bloğu var mı?
+    var reportMatch = m.content.match(/<RAPOR_JSON>([\s\S]*?)<\/RAPOR_JSON>/);
+    var textContent = m.content.replace(/<RAPOR_JSON>[\s\S]*?<\/RAPOR_JSON>/g, '').trim();
+    var reportHtml = '';
+    if (reportMatch) {
+      try {
+        var r = JSON.parse(reportMatch[1].trim());
+        reportHtml = buildReportCard(r);
+      } catch(e) { /* parse hatası — rapor gösterme */ }
+    }
+    return '<div class="ai-msg ai">' +
+      '<div class="ai-avatar">🤖</div>' +
+      '<div style="flex:1">' +
+        (textContent ? '<div class="ai-bubble">' + mdToHtml(textContent) + '</div>' : '') +
+        reportHtml +
+      '</div>' +
+    '</div>';
+  }).join('');
+  // Son mesaja scroll
+  c.scrollTop = c.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function mdToHtml(s) {
+  // Minimal markdown: bold, italic, line breaks, lists
+  return s
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code style="background:var(--bg4);padding:1px 5px;border-radius:4px;font-family:JetBrains Mono,monospace;font-size:11px">$1</code>')
+    .replace(/^[-•]\s(.+)/gm, '<div style="padding:3px 0 3px 16px;position:relative"><span style="position:absolute;left:4px;color:var(--teal)">•</span>$1</div>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+// Rapor kartı HTML oluştur
+function buildReportCard(r) {
+  var colorMap = {teal:'var(--teal)',green:'var(--green)',amber:'var(--amber)',red:'var(--red)',blue:'var(--blue)'};
+  var statsHtml = '';
+  if (r.istatistikler && r.istatistikler.length > 0) {
+    statsHtml = '<div class="ai-stat-row">' +
+      r.istatistikler.map(function(s) {
+        return '<div class="ai-stat"><div class="ai-stat-v" style="color:' + (colorMap[s.renk]||'var(--c1)') + '">' + escHtml(s.deger) + '</div><div class="ai-stat-l">' + escHtml(s.etiket) + '</div></div>';
+      }).join('') +
+    '</div>';
+  }
+  var tableHtml = '';
+  if (r.tablo && r.tablo.basliklar && r.tablo.satirlar) {
+    tableHtml = '<div class="tw" style="margin:10px 0"><table class="ai-table"><thead><tr>' +
+      r.tablo.basliklar.map(function(h){return '<th>' + escHtml(h) + '</th>'}).join('') +
+      '</tr></thead><tbody>' +
+      r.tablo.satirlar.map(function(row) {
+        return '<tr>' + row.map(function(cell,ci){return '<td' + (ci===0?'style="font-weight:600"':'') + '>' + escHtml(String(cell)) + '</td>'}).join('') + '</tr>';
+      }).join('') +
+    '</tbody></table></div>';
+  }
+  var oneriHtml = '';
+  if (r.oneriler && r.oneriler.length > 0) {
+    oneriHtml = '<div style="margin-top:10px"><div style="font-size:9px;font-weight:700;color:var(--c3);text-transform:uppercase;letter-spacing:1px;font-family:JetBrains Mono,monospace;margin-bottom:7px">ÖNERİLER</div>' +
+      r.oneriler.map(function(o) {
+        return '<div style="display:flex;gap:7px;padding:7px 0;border-bottom:1px solid var(--br2);font-size:12px"><span style="color:var(--amber);flex-shrink:0">→</span><span>' + escHtml(o) + '</span></div>';
+      }).join('') +
+    '</div>';
+  }
+  var reportId = 'report-' + Date.now();
+  return '<div class="ai-report-card" id="' + reportId + '">' +
+    '<div class="ai-report-head">' +
+      '<div class="ai-report-title"><span style="color:var(--teal)">📊</span>' + escHtml(r.baslik||'Rapor') + '</div>' +
+      '<div style="display:flex;gap:7px">' +
+        '<div class="pdf-btn" onclick="exportPDF(\'' + reportId + '\',\'' + escHtml(r.baslik||'Rapor').replace(/'/g,'') + '\')">↓ PDF</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="ai-report-body">' +
+      (r.ozet ? '<div style="font-size:12.5px;color:var(--c2);line-height:1.6;margin-bottom:10px">' + escHtml(r.ozet) + '</div>' : '') +
+      statsHtml +
+      tableHtml +
+      oneriHtml +
+      '<div class="ai-source"><span>🤖</span>NexGen AI · claude-sonnet-4-20250514 · ' + new Date().toLocaleTimeString('tr-TR') + '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+// AI'ya mesaj gönder
+async function sendAiMessage() {
+  if (aiThinking) return;
+  var inp = document.getElementById('ai-input');
+  if (!inp) return;
+  var text = inp.value.trim();
+  if (!text) return;
+
+  aiHistory.push({role:'user', content: text});
+  inp.value = '';
+  inp.style.height = 'auto';
+  renderAiHistory();
+  showAiThinking();
+
+  try {
+    var messages = aiHistory.map(function(m) {
+      return {role: m.role, content: m.content};
+    });
+
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        system: buildSystemPrompt(),
+        messages: messages,
+      })
+    });
+
+    if (!response.ok) {
+      var errData = await response.json().catch(()=>({}));
+      throw new Error((errData.error && errData.error.message) || ('HTTP ' + response.status));
+    }
+
+    var data = await response.json();
+    var assistantText = '';
+    if (data.content && data.content.length > 0) {
+      assistantText = data.content.filter(function(b){return b.type==='text'}).map(function(b){return b.text}).join('\n');
+    }
+
+    aiHistory.push({role:'assistant', content: assistantText});
+
+  } catch(err) {
+    var errMsg = String(err.message||err);
+    // API key yoksa demo rapor göster
+    if (errMsg.includes('401') || errMsg.includes('403') || errMsg.includes('Failed to fetch') || errMsg.includes('NetworkError') || errMsg.includes('api_key')) {
+      aiHistory.push({role:'assistant', content: buildDemoResponse(aiHistory[aiHistory.length-2]?.content||'')});
+    } else {
+      aiHistory.push({role:'assistant', content: '**Hata:** ' + errMsg + '\n\nAPI bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.'});
+    }
+  }
+
+  hideAiThinking();
+  renderAiHistory();
+}
+
+// API yoksa gösterilecek demo yanıt
+function buildDemoResponse(query) {
+  var isReport = /rapor|analiz|özet|durum|kpi|performans|gecik|risk|verimli/i.test(query);
+  if (!isReport) {
+    return 'Bu sorgu için API bağlantısı gerekmektedir. Demo modunda çalışıyorsunuz.\n\n**İpucu:** Canlı API için claude.ai hesabından API anahtarı alabilirsiniz.';
+  }
+  return 'Demo raporu oluşturuldu:\n\n<RAPOR_JSON>\n{"baslik":"NexGen Üretim Durum Raporu","ozet":"Sistemde 5 aktif iş emri bulunmakta, KPI hedefleri genel olarak karşılanıyor. Teslimat oranı hedef altında dikkat gerektiriyor.","istatistikler":[{"deger":"73.6%","etiket":"Teslimat","renk":"amber"},{"deger":"0.22%","etiket":"Rework","renk":"green"},{"deger":"94.2%","etiket":"FPY","renk":"teal"}],"tablo":{"basliklar":["Proje","Durum","İlerleme","Öncelik"],"satirlar":[["GEZKİY","Devam","%72","Yüksek"],["T PRJ","Bekliyor","%15","Orta"],["Q PRJ","Kalite","%90","Yüksek"],["P PRJ","Tamamlandı","%100","Düşük"],["R PRJ","Aktif","%35","Orta"]]},"oneriler":["Teslimat oranı %73.6 ile %80 hedefinin altında — JOB002 önceliklendirilmeli.","Elekt. Dizgi B1 sıcaklık alarmı aktif — HVAC kontrolü gerekiyor.","JOB003 kalite onayı bekliyor — Ali K. aksiyona geçmeli."],"grafik_tipi":"bar"}\n</RAPOR_JSON>\n\n**Not:** Bu demo verisidir. Gerçek AI yanıtı için API bağlantısı gereklidir.';
+}
+
+function showAiThinking() {
+  aiThinking = true;
+  var btn = document.getElementById('ai-send-btn');
+  if(btn) btn.disabled = true;
+  var hist = document.getElementById('ai-history');
+  if (!hist) return;
+  var thinking = document.createElement('div');
+  thinking.className = 'ai-msg ai'; thinking.id = 'ai-thinking-msg';
+  thinking.innerHTML = '<div class="ai-avatar">🤖</div><div class="ai-thinking"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div>';
+  hist.appendChild(thinking);
+  hist.scrollTop = hist.scrollHeight;
+}
+function hideAiThinking() {
+  aiThinking = false;
+  var btn = document.getElementById('ai-send-btn');
+  if(btn) btn.disabled = false;
+  var t = document.getElementById('ai-thinking-msg');
+  if(t) t.remove();
+}
+
+// Enter ile gönder (Shift+Enter yeni satır)
+function aiKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(); }
+}
+// Textarea auto-resize
+function aiResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+// Şablon chip'e tıkla → textarea'ya yaz
+function aiQuickFill(text) {
+  var inp = document.getElementById('ai-input');
+  if (!inp) return;
+  inp.value = text;
+  aiResize(inp);
+  inp.focus();
+}
+
+// PDF export — print API ile
+function exportPDF(reportId, title) {
+  var el = document.getElementById(reportId);
+  if (!el) { sn('w','PDF','Rapor bulunamadı'); return; }
+  var win = window.open('', '_blank');
+  if (!win) { sn('w','PDF','Popup engellendi — lütfen izin verin'); return; }
+  var pdfCss = `
+    <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#fff;color:#111;padding:32px;font-size:13px}
+    h1{font-size:20px;font-weight:800;margin-bottom:6px;color:#0d1520}
+    .meta{font-size:10px;color:#666;margin-bottom:20px;font-family:monospace}
+    .section{margin-bottom:18px}
+    .section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#999;margin-bottom:8px;font-family:monospace}
+    .stat-row{display:flex;gap:12px;margin-bottom:16px}
+    .stat{flex:1;background:#f8f9fa;border-radius:8px;padding:12px;text-align:center;border:1px solid #eee}
+    .stat-v{font-size:22px;font-weight:800;margin-bottom:3px}
+    .stat-l{font-size:9px;color:#999;text-transform:uppercase;letter-spacing:.8px;font-family:monospace}
+    .teal{color:#059669}.amber{color:#d97706}.red{color:#dc2626}.green{color:#059669}.blue{color:#2563eb}
+    table{width:100%;border-collapse:collapse;margin-bottom:16px}
+    th{padding:8px 10px;text-align:left;font-size:9px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.8px;border-bottom:2px solid #eee;font-family:monospace}
+    td{padding:9px 10px;border-bottom:1px solid #f0f0f0;font-size:12px}
+    tr:first-child td{font-weight:600}
+    .oneri{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+    .oneri-arrow{color:#d97706;flex-shrink:0}
+    .footer{margin-top:28px;padding-top:14px;border-top:2px solid #eee;font-size:10px;color:#aaa;text-align:center;font-family:monospace}
+    .watermark{position:fixed;bottom:20px;right:24px;font-size:9px;color:#ddd;font-family:monospace;transform:rotate(-15deg)}
+    @media print{body{padding:20px}.watermark{display:none}}
+    </style>`;
+
+  // Rapor verisini DOM'dan çıkar
+  var statEls = el.querySelectorAll('.ai-stat');
+  var statsHtml = '';
+  if (statEls.length) {
+    statsHtml = '<div class="stat-row">';
+    statEls.forEach(function(s) {
+      var v = s.querySelector('.ai-stat-v'); var l = s.querySelector('.ai-stat-l');
+      var cls = v && v.style.color ? '' : '';
+      statsHtml += '<div class="stat"><div class="stat-v">' + (v?v.textContent:'—') + '</div><div class="stat-l">' + (l?l.textContent:'') + '</div></div>';
+    });
+    statsHtml += '</div>';
+  }
+  var tableEl = el.querySelector('.ai-table');
+  var tableHtml = tableEl ? '<table>' + tableEl.innerHTML + '</table>' : '';
+  var oneriEls = el.querySelectorAll('.ai-report-body > div:last-of-type > div:not(:first-child)');
+  var oneriHtml = '';
+  el.querySelectorAll('[style*="→"]').forEach(function(o){
+    if(o.textContent.trim()) oneriHtml += '<div class="oneri"><span class="oneri-arrow">→</span><span>' + o.textContent.replace('→','').trim() + '</span></div>';
+  });
+  var ozet = el.querySelector('.ai-report-body > div:first-child');
+
+  win.document.write(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(title)}</title>${pdfCss}</head><body>
+    <h1>📊 ${escHtml(title)}</h1>
+    <div class="meta">NexGen Üretim Yönetim Sistemi &nbsp;·&nbsp; ${new Date().toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'})} &nbsp;·&nbsp; claude-sonnet-4-20250514</div>
+    ${ozet?'<div class="section"><div class="section-title">ÖZET</div><p style="line-height:1.7;color:#444">' + ozet.textContent + '</p></div>':''}
+    ${statsHtml ? '<div class="section"><div class="section-title">İSTATİSTİKLER</div>' + statsHtml + '</div>' : ''}
+    ${tableHtml ? '<div class="section"><div class="section-title">VERİ TABLOSU</div>' + tableHtml + '</div>' : ''}
+    ${oneriHtml ? '<div class="section"><div class="section-title">ÖNERİLER</div>' + oneriHtml + '</div>' : ''}
+    <div class="footer">Bu rapor NexGen AI tarafından otomatik oluşturulmuştur &nbsp;·&nbsp; NexGen Savunma</div>
+    <div class="watermark">NexGen · GİZLİ</div>
+    <script>window.onload=function(){window.print();window.onafterprint=function(){window.close()}};<\/script>
+  </body></html>`);
+  win.document.close();
+  sn('s','PDF','Rapor yazdırma diyaloğu açılıyor...');
+}
+
+// ── rAiRapor — Sayfa Render ──────────────────────────────────────────────────
+function rAiRapor() {
+  var c = document.getElementById('airapor-c');
+  if (!c) return;
+  c.innerHTML =
+    '<div class="ph">' +
+      '<div><div class="bc">NexGen / <em>AI Rapor</em></div>' +
+      '<div class="pt">AI Rapor Asistanı</div>' +
+      '<div class="ps">Türkçe yaz · AI analiz etsin · Rapor + PDF</div></div>' +
+      '<div style="display:flex;align-items:center;gap:7px">' +
+        '<span class="b bteal" style="font-size:9px;font-family:JetBrains Mono,monospace;display:flex;align-items:center;gap:4px">' +
+          '<span style="width:6px;height:6px;border-radius:50%;background:var(--teal);display:inline-block;animation:ld 2s infinite"></span>' +
+          'claude-sonnet-4' +
+        '</span>' +
+        '<button class="btn bts sm" onclick="clearAiHistory()" style="font-size:10px">↺ Sıfırla</button>' +
+      '</div>' +
+    '</div>' +
+
+    // Bilgi kartı
+    '<div class="al ali" style="font-size:11px">' +
+      '<span style="font-size:15px">🤖</span>' +
+      '<div><b>Nasıl kullanılır?</b> Aşağıdan hazır şablon seçin veya serbest Türkçe yazın.<br>' +
+        '<span style="opacity:.8">Örnek: "Bu hafta geciken iş emirlerini analiz et" · "KPI raporu oluştur ve PDF indir"</span></div>' +
+    '</div>' +
+
+    // Quick chip'ler
+    '<div class="label mb2" style="margin-bottom:6px">HAZIR ŞABLONLAR</div>' +
+    '<div class="ai-chip-row">' +
+      AI_QUICK.map(function(q){
+        return '<div class="ai-chip" onclick="aiQuickFill(\'' + q.replace(/'/g,"\\'") + '\')">' + q + '</div>';
+      }).join('') +
+    '</div>' +
+
+    // Konuşma geçmişi
+    '<div class="card" style="padding:0;overflow:hidden">' +
+      '<div id="ai-history" style="min-height:180px;max-height:420px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px">' +
+      '</div>' +
+
+      // Input alanı
+      '<div style="border-top:1px solid var(--br2);padding:12px">' +
+        '<div id="voice-status" class="voice-status">' +
+          '<span>🎙️ Dinleniyor...</span>' +
+          '<span id="vs-interim" style="flex:1;color:var(--c1);font-style:italic"></span>' +
+          '<div class="vs-waves"><div class="vs-bar"></div><div class="vs-bar"></div><div class="vs-bar"></div><div class="vs-bar"></div><div class="vs-bar"></div></div>' +
+        '</div>' +
+        '<div id="no-speech-support" class="no-speech-support">⚠ Tarayıcınız ses tanımayı desteklemiyor. Chrome veya Edge kullanın.</div>' +
+        '<div class="ai-input-wrap">' +
+          '<textarea class="ai-textarea" id="ai-input" rows="2" ' +
+            'placeholder="🎙 Mikrofona basılı tut ve konuş — veya Türkçe yaz..." ' +
+            'onkeydown="aiKeyDown(event)" oninput="aiResize(this)">' +
+          '</textarea>' +
+          '<button class="ai-mic-btn" id="ai-mic-btn" onclick="toggleVoice()" title="Sesli sorgu (Türkçe)">' +
+            '<span class="mic-icon">🎙</span>' +
+          '</button>' +
+          '<button class="ai-send-btn" id="ai-send-btn" onclick="sendAiMessage()" title="Gönder (Enter)">↑</button>' +
+        '</div>' +
+        '<div style="font-size:9.5px;color:var(--c4);font-family:JetBrains Mono,monospace;text-align:center">' +
+          '🎙 Mikrofon butonu → Sesli Türkçe sorgu &nbsp;·&nbsp; Enter → Gönder &nbsp;·&nbsp; Shift+Enter → Yeni satır' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  renderAiHistory();
+}
+
+function clearAiHistory() {
+  aiHistory = [];
+  renderAiHistory();
+  sn('i','AI Sıfırlandı','Sohbet geçmişi temizlendi');
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  WEB SPEECH API — Sesli Sorgu Motoru (Türkçe)
+// ═══════════════════════════════════════════════════════════════
+
+var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+var voiceRecognizer = null;
+var voiceActive = false;
+var voiceFinalTranscript = '';
+
+function initVoice() {
+  if (!SpeechRecognition) {
+    var ns = document.getElementById('no-speech-support');
+    if (ns) ns.style.display = 'block';
+    var btn = document.getElementById('ai-mic-btn');
+    if (btn) { btn.style.opacity = '.4'; btn.style.cursor = 'not-allowed'; btn.title = 'Tarayıcı desteklemiyor'; }
+    return false;
+  }
+
+  voiceRecognizer = new SpeechRecognition();
+  voiceRecognizer.lang = 'tr-TR';          // Türkçe
+  voiceRecognizer.continuous = true;        // Sürekli dinle
+  voiceRecognizer.interimResults = true;    // Anlık sonuçlar
+  voiceRecognizer.maxAlternatives = 1;
+
+  voiceRecognizer.onstart = function() {
+    voiceActive = true;
+    voiceFinalTranscript = '';
+    var btn = document.getElementById('ai-mic-btn');
+    var vs = document.getElementById('voice-status');
+    if (btn) btn.classList.add('listening');
+    if (vs) vs.classList.add('on');
+  };
+
+  voiceRecognizer.onresult = function(e) {
+    var interim = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        voiceFinalTranscript += t + ' ';
+      } else {
+        interim += t;
+      }
+    }
+    // Anlık metni göster
+    var vsInterim = document.getElementById('vs-interim');
+    if (vsInterim) vsInterim.textContent = voiceFinalTranscript + interim;
+    // Textarea'ya yaz (canlı)
+    var inp = document.getElementById('ai-input');
+    if (inp) {
+      inp.value = (voiceFinalTranscript + interim).trim();
+      aiResize(inp);
+    }
+  };
+
+  voiceRecognizer.onerror = function(e) {
+    var msgs = {
+      'not-allowed': 'Mikrofon izni reddedildi. Tarayıcı ayarlarından izin verin.',
+      'no-speech': 'Ses algılanamadı. Tekrar deneyin.',
+      'audio-capture': 'Mikrofon bulunamadı.',
+      'network': 'Ağ hatası. İnternet bağlantısını kontrol edin.',
+    };
+    stopVoice();
+    sn('e', 'Ses Hatası', msgs[e.error] || ('Hata: ' + e.error), 4000);
+  };
+
+  voiceRecognizer.onend = function() {
+    if (voiceActive) {
+      // Kullanıcı durdurmadıysa ve final transcript varsa otomatik gönder
+      var inp = document.getElementById('ai-input');
+      var finalText = voiceFinalTranscript.trim() || (inp ? inp.value.trim() : '');
+      stopVoice();
+      if (finalText && finalText.length > 3) {
+        // Kısa bekleme sonra gönder (kullanıcı tamamladığını anlasın)
+        setTimeout(function() {
+          if (inp) inp.value = finalText;
+          sn('s', 'Ses Alındı', '"' + finalText.substring(0,50) + (finalText.length>50?'...':'"'), 2000);
+          setTimeout(sendAiMessage, 600);
+        }, 300);
+      }
+    }
+    stopVoice();
+  };
+
+  return true;
+}
+
+function toggleVoice() {
+  if (!SpeechRecognition) {
+    sn('e', 'Desteklenmiyor', 'Chrome veya Edge kullanın. Firefox desteklemiyor.', 3500);
+    return;
+  }
+  if (voiceActive) {
+    // Durdur → transkripti gönder
+    if (voiceRecognizer) voiceRecognizer.stop();
+    voiceActive = false;
+  } else {
+    // Başlat
+    if (!voiceRecognizer && !initVoice()) return;
+    voiceFinalTranscript = '';
+    var inp = document.getElementById('ai-input');
+    if (inp) inp.value = '';
+    try {
+      voiceRecognizer.start();
+      sn('i', '🎙 Dinleniyor', 'Türkçe konuşun. Durmak için tekrar mikrofona basın.', 2500);
+    } catch(err) {
+      // Zaten aktifse durdur
+      try { voiceRecognizer.stop(); } catch(e2) {}
+      voiceActive = false;
+    }
+  }
+}
+
+function stopVoice() {
+  voiceActive = false;
+  var btn = document.getElementById('ai-mic-btn');
+  var vs = document.getElementById('voice-status');
+  var vsInterim = document.getElementById('vs-interim');
+  if (btn) btn.classList.remove('listening');
+  if (vs) vs.classList.remove('on');
+  if (vsInterim) vsInterim.textContent = '';
+}
+
+// Sayfa açıldığında ses desteğini kontrol et (sessizce)
+document.addEventListener('DOMContentLoaded', function() {
+  if (!SpeechRecognition) {
+    // Desteklenmiyor — mic butonu pasif görünecek
+    setTimeout(function() {
+      var btn = document.getElementById('ai-mic-btn');
+      if (btn) { btn.style.opacity = '.35'; btn.style.cursor = 'not-allowed'; }
+    }, 100);
+  }
+});
+
+</script>
+</body>
+</html>
